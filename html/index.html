@@ -50,7 +50,7 @@ import Test.FlareCheck
 main = do
   flareCheck "length" length
   flareCheck "charCodeAt" $ uncurry charCodeAt
-  flareCheck "charCodeAt" $ uncurry (fromMaybe :: Number -> _)
+  flareCheck "fromMaybe" $ uncurry (fromMaybe :: Number -> _)
 </pre>
 
     which creates the following three interactive tests:
