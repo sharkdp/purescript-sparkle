@@ -21,7 +21,7 @@ import Signal.Channel (Chan())
 import DOM (DOM())
 import DOM.Node.Types (Element())
 
-import Signal as S
+import Signal (runSignal)
 import Flare
 
 -- | A type class for input parameters for interactive tests. Instances for
@@ -58,10 +58,35 @@ instance flammableEither :: (Flammable a, Flammable b) => Flammable (Either a b)
 -- | A type class for interactive tests. Instances must provide a way to create
 -- | a Flare UI which returns a `String` as output.
 class Interactive t where
-  createUI :: forall e. t -> UI e String
+  createUI :: forall e. UI e t -> UI e String
 
-instance interactiveFunction :: (Flammable a, Show b) => Interactive (a -> b) where
-  createUI f = (show <<< f) <$> spark
+-- | A default `createUI` implementation for any `Show`able type.
+defaultCreateUI :: forall t e. (Show t) => UI e t -> UI e String
+defaultCreateUI = map show
+
+instance interactiveNumber :: Interactive Number where
+  createUI = defaultCreateUI
+
+instance interactiveInt :: Interactive Int where
+  createUI = defaultCreateUI
+
+instance interactiveString :: Interactive String where
+  createUI = defaultCreateUI
+
+instance interactiveBoolean :: Interactive Boolean where
+  createUI = defaultCreateUI
+
+instance interactiveMaybe :: (Show a) => Interactive (Maybe a) where
+  createUI = defaultCreateUI
+
+instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
+  createUI = defaultCreateUI
+
+instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
+  createUI = defaultCreateUI
+
+instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -> b) where
+  createUI f = createUI (f <*> spark)
 
 -- | Append a new interactive test. The arguments are the ID of the parent
 -- | element, the title for the test and the list of Flare components. Returns
@@ -84,10 +109,10 @@ flareCheck' :: forall t e. (Interactive t)
             -> t
             -> Eff (chan :: Chan, dom :: DOM | e) Unit
 flareCheck' parentId title x = do
-  let flare = createUI x
+  let flare = createUI (pure x)
   { components, signal } <- setupFlare flare
   output <- appendTest parentId title components
-  S.runSignal (printOutput output <$> signal)
+  runSignal (printOutput output <$> signal)
 
 -- | Run an interactive test. The label provides a title for the test.
 flareCheck :: forall t e. (Interactive t)
