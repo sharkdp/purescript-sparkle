@@ -3,6 +3,10 @@
   "authors": [
     "David Peter <mail@david-peter.de>"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sharkdp/purescript-flarecheck.git"
+  },
   "license": "MIT",
   "ignore": [
     "**/.*",

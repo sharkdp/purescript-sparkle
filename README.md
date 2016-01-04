@@ -15,7 +15,7 @@ that you want to test. To use FlareCheck, you simply call (the first argument is
 ``` purs
 flareCheck "substring" substring
 ```
-The function `flareCheck` automatically creates an interactive testing environment (see [demo page](http://sharkdp.github.io/purescript-flarecheck/) for a working version):
+This automatically creates an interactive testing environment (see [demo page](http://sharkdp.github.io/purescript-flarecheck/) for a working version) like this:
 
 [![](http://i.imgur.com/EmwNL9X.png)](http://sharkdp.github.io/purescript-flarecheck/)
 
