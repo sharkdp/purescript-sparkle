@@ -20,6 +20,28 @@ Flammable Boolean
 (Flammable a, Flammable b) => Flammable (Tuple a b)
 (Flammable a) => Flammable (Maybe a)
 (Flammable a, Flammable b) => Flammable (Either a b)
+(Read a) => Flammable (Array a)
+(Read a) => Flammable (List a)
+```
+
+#### `Read`
+
+``` purescript
+class Read a where
+  typeName :: Proxy a -> String
+  defaults :: Proxy a -> String
+  read :: String -> Maybe a
+```
+
+A class for types which can be parsed from a `String`. This class is used
+to construct input fields for `Array a` and `List a`.
+
+##### Instances
+``` purescript
+Read Number
+Read Int
+Read String
+Read Boolean
 ```
 
 #### `Interactive`
@@ -41,6 +63,8 @@ Interactive Boolean
 (Show a) => Interactive (Maybe a)
 (Show a, Show b) => Interactive (Either a b)
 (Show a, Show b) => Interactive (Tuple a b)
+(Show a) => Interactive (Array a)
+(Show a) => Interactive (List a)
 (Flammable a, Interactive b) => Interactive (a -> b)
 ```
 
