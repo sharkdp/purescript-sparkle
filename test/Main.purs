@@ -18,10 +18,10 @@ instance flammableTRegex :: Flammable TRegex where
                    <*> (parseFlags <$> string "Flags (g,i,m)" "g"))
 
 main = do
-  flareCheck' "tests1" "length" length
-  flareCheck' "tests1" "charCodeAt" charCodeAt
-  flareCheck' "tests1" "joinWith" joinWith
+  flareCheck' "tests1" "length"      length
+  flareCheck' "tests1" "charCodeAt"  charCodeAt
+  flareCheck' "tests1" "joinWith"    joinWith
   flareCheck' "tests1" "filter even" (filter even)
-  flareCheck' "tests1" "fromMaybe" (fromMaybe :: Number -> _)
+  flareCheck' "tests1" "fromMaybe"   (fromMaybe :: Number -> _)
 
   flareCheck' "tests2" "match" $ \(TRegex regex) string -> match regex string

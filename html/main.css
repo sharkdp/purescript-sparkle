@@ -2,6 +2,10 @@ body {
     margin: 40px;
 }
 
+pre, code, input, label, legend {
+    font-family: 'Source Code Pro', courier;
+}
+
 pre {
     background-color: #f0f0f0;
     padding: 10px;
@@ -12,7 +16,6 @@ pre {
 }
 
 input {
-    font-family: monospace;
     font-size: 16px;
     padding: 3px;
 }
@@ -31,7 +34,6 @@ fieldset {
 }
 
 label, legend {
-    font-family: monospace;
     font-size: 16px;
 }
 
@@ -43,9 +45,37 @@ label {
 legend {
     padding-left: 5px;
     padding-right: 5px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .flarecheck-test {
     margin-top: 15px;
+}
+
+/* Syntax highlighting */
+.LineNr {
+    display: none;
+}
+
+.String {
+    color: #E91E63;
+}
+
+.Float, .Number {
+    color: #1339E8;
+}
+
+.Operator, .Statement {
+    font-weight: 700;
+}
+
+.Delimiter {
+}
+
+.Structure {
+    font-weight: 700;
+}
+
+.PreProc {
+    color: #1237E0;
 }
