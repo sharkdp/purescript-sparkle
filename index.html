@@ -44,13 +44,12 @@ module Test.Main
 
 import Prelude
 import Data.String
-import Data.Tuple
 import Test.FlareCheck
 
 main = do
   flareCheck "length" length
-  flareCheck "charCodeAt" $ uncurry charCodeAt
-  flareCheck "fromMaybe" $ uncurry (fromMaybe :: Number -> _)
+  flareCheck "charCodeAt" charCodeAt
+  flareCheck "fromMaybe" $ fromMaybe :: Number -> _
 </pre>
 
     which creates the following three interactive tests:
@@ -88,8 +87,7 @@ instance flammableTRegex :: Flammable TRegex where
 
     Then, we can use <code>flareCheck</code> as before:
 <pre>
-flareCheck "match" $ uncurry2 $
-  \(TRegex regex) string -> match regex string
+flareCheck "match" $ \(TRegex regex) string -> match regex string
 </pre>
     to create the following interactive test:
 
@@ -97,10 +95,6 @@ flareCheck "match" $ uncurry2 $
 
     <h2>Ideas, Questions, To do</h2>
     <ul>
-      <li>I didn't manage to get rid of <code>uncurry</code>... doing something similar to
-        QuickCheck does not work (I think) because Flare is just an Applicative and not a Monad
-        and providing instances for <code>a1 -> a2 -> b</code> (etc.) did not work because
-        of overlapping instance errors (which are due to the lack of type class interference, I believe).</li>
       <li>List / Array inputs would be very nice (this is related to <a href="https://github.com/sharkdp/purescript-flare/issues/2">Flare issue #2</a>)</li>
     </ul>
 
