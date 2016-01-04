@@ -26,7 +26,7 @@ Flammable Boolean
 
 ``` purescript
 class Interactive t where
-  createUI :: forall e. t -> UI e String
+  createUI :: forall e. UI e t -> UI e String
 ```
 
 A type class for interactive tests. Instances must provide a way to create
@@ -34,7 +34,14 @@ a Flare UI which returns a `String` as output.
 
 ##### Instances
 ``` purescript
-(Flammable a, Show b) => Interactive (a -> b)
+Interactive Number
+Interactive Int
+Interactive String
+Interactive Boolean
+(Show a) => Interactive (Maybe a)
+(Show a, Show b) => Interactive (Either a b)
+(Show a, Show b) => Interactive (Tuple a b)
+(Flammable a, Interactive b) => Interactive (a -> b)
 ```
 
 #### `flareCheck'`

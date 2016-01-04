@@ -5,7 +5,6 @@ import Prelude
 import Data.Maybe
 import Data.String
 import Data.Tuple
-import Data.Tuple.Nested
 import Data.String.Regex (Regex(), regex, parseFlags, match)
 
 import Test.FlareCheck
@@ -19,7 +18,6 @@ instance flammableTRegex :: Flammable TRegex where
 
 main = do
   flareCheck' "tests1" "length" length
-  flareCheck' "tests1" "charCodeAt" (uncurry charCodeAt)
-  flareCheck' "tests1" "fromMaybe" $ uncurry (fromMaybe :: Number -> _)
-  flareCheck' "tests2" "match" $ uncurry2 $
-    \(TRegex regex) string -> match regex string
+  flareCheck' "tests1" "charCodeAt" charCodeAt
+  flareCheck' "tests1" "fromMaybe" $ fromMaybe :: Number -> _
+  flareCheck' "tests2" "match" $ \(TRegex regex) string -> match regex string
