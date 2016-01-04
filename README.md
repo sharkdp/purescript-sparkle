@@ -3,6 +3,7 @@
 A library to create interactive test suites for PureScript functions.
 
 - **[Live demo and tutorial](http://sharkdp.github.io/purescript-flarecheck/)**
+- [Module documentation](http://pursuit.purescript.org/packages/purescript-flarecheck/)
 
 ## Usage
 
