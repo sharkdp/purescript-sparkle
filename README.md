@@ -17,7 +17,7 @@ flareCheck "substring" substring
 ```
 The function `flareCheck` automatically creates an interactive testing environment (see [demo page](http://sharkdp.github.io/purescript-flarecheck/) for a working version):
 
-![](http://i.imgur.com/EmwNL9X.png)
+[![](http://i.imgur.com/EmwNL9X.png)](http://sharkdp.github.io/purescript-flarecheck/)
 
 Notice how the type information is used to create appropriate input fields for `Int` and `String`. Similarly, calling
 ```purs
@@ -25,7 +25,7 @@ flareCheck "filter even" (filter even)
 ```
 creates the following interface:
 
-![](http://i.imgur.com/LXexxEm.png)
+[![](http://i.imgur.com/LXexxEm.png)](http://sharkdp.github.io/purescript-flarecheck/)
 
 ## Minimal setup
 
