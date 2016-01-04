@@ -4,7 +4,6 @@ import Prelude
 
 import Data.Maybe
 import Data.String
-import Data.Tuple
 import Data.String.Regex (Regex(), regex, parseFlags, match)
 
 import Test.FlareCheck
