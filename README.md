@@ -26,3 +26,38 @@ flareCheck "filter even" (filter even)
 creates the following interface:
 
 ![](http://i.imgur.com/LXexxEm.png)
+
+## Minimal setup
+
+1. The module that you want to test (`src/MyModule.purs`):
+``` purs
+module MyModule (substring) where
+
+import Prelude
+import Data.String
+
+substring :: Int -> Int -> String -> String
+substring start end str = take (end - start) (drop start str)
+```
+
+2. A module which runs the tests (`test/Main.purs`):
+``` purs
+module Test.Main where
+
+import Prelude
+import MyModule
+import Test.FlareCheck
+
+main = flareCheck "substring" substring
+```
+
+3. The compiled test module (`test.js`), run:
+```
+pulp build -O -I test -m Test.Main -t test.js
+```
+
+4. An accompanying HTML file which includes an empty element with ID `tests` that runs the script:
+``` HTML
+<div id="tests"></div>
+<script src="test.js"></script>
+```
