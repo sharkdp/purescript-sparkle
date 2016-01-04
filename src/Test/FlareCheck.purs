@@ -1,6 +1,10 @@
 module Test.FlareCheck
   ( Flammable
   , spark
+  , Read
+  , typeName
+  , defaults
+  , read
   , Interactive
   , createUI
   , flareCheck'
@@ -12,9 +16,17 @@ import Prelude
 
 import Control.Monad.Eff (Eff())
 
+import Data.Array (catMaybes)
 import Data.Either (Either(..))
+import Data.Int (fromString)
+import Data.List (List(), toList)
 import Data.Maybe (Maybe(..))
+import Data.String (split)
 import Data.Tuple (Tuple(..))
+
+import Global (readFloat, isFinite)
+
+import Type.Proxy (Proxy(..))
 
 import Signal.Channel (Chan())
 
@@ -55,6 +67,49 @@ instance flammableEither :: (Flammable a, Flammable b) => Flammable (Either a b)
     where toEither "Left" x _ = Left x
           toEither _      _ y = Right y
 
+-- | A class for types which can be parsed from a `String`. This class is used
+-- | to construct input fields for `Array a` and `List a`.
+class Read a where
+  typeName :: Proxy a -> String
+  defaults :: Proxy a -> String
+  read :: String -> Maybe a
+
+instance readNumber :: Read Number where
+  typeName _ = "Number"
+  defaults _ = "0.0,1.1,3.14"
+  read str = if isFinite n then (Just n) else Nothing
+    where n = readFloat str
+
+instance readInt :: Read Int where
+  typeName _ = "Int"
+  defaults _ = "0,1,2"
+  read = fromString
+
+instance readString :: Read String where
+  typeName _ = "String"
+  defaults _ = "foo,bar,baz"
+  read = Just
+
+instance readBool :: Read Boolean where
+  typeName _ = "Boolean"
+  defaults _ = "true,false"
+  read "true"  = Just true
+  read "false" = Just false
+  read _       = Nothing
+
+-- | A UI for comma separated values.
+csvUI :: forall a e. (Read a) => UI e (Array a)
+csvUI = (catMaybes <<< map read <<< split ",") <$> string "CSV:" defaults'
+  where defaults' = defaults (Proxy :: Proxy a)
+
+instance flammableArrayRead :: (Read a) => Flammable (Array a) where
+  spark = fieldset ("Array " <> typeName') csvUI
+    where typeName' = typeName (Proxy :: Proxy a)
+
+instance flammableListRead :: (Read a) => Flammable (List a) where
+  spark = fieldset ("List " <> typeName') (toList <$> csvUI)
+    where typeName' = typeName (Proxy :: Proxy a)
+
 -- | A type class for interactive tests. Instances must provide a way to create
 -- | a Flare UI which returns a `String` as output.
 class Interactive t where
@@ -83,6 +138,12 @@ instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
   createUI = defaultCreateUI
 
 instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
+  createUI = defaultCreateUI
+
+instance interactiveArray :: (Show a) => Interactive (Array a) where
+  createUI = defaultCreateUI
+
+instance interactiveList :: (Show a) => Interactive (List a) where
   createUI = defaultCreateUI
 
 instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -> b) where

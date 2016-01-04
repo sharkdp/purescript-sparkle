@@ -30,36 +30,46 @@
     HTML form fields for input parameters instead of using randomly generated data.
 
     <h2>Examples</h2>
-    To create an interactive test suite for the three functions
+    To create an interactive test suite for the following functions from
+    the standard libraries:
 <pre>
-length :: String -&gt; Int
-charCodeAt :: Int -&gt; String -&gt; Maybe Int
-fromMaybe :: forall a. a -&gt; Maybe a -&gt; a</pre>
+Data.String.length :: String -&gt; Int
+Data.String.charCodeAt :: Int -&gt; String -&gt; Maybe Int
+Data.String.joinWith :: String -&gt; Array String -&gt; String
 
-    from <code>Data.String</code> and <code>Data.Maybe</code>, we simply call
-    the function <code>flareCheck</code>:
+Data.Array.filter :: forall a. (a -&gt; Boolean) -&gt; Array a -&gt; Array a
+
+Data.Maybe.fromMaybe :: forall a. a -&gt; Maybe a -&gt; a
+</pre>
+
+    we simply call the function <code>flareCheck</code>:
 
 <pre>
 module Test.Main
 
 import Prelude
-import Data.String
+import Data.Array (filter)
+import Data.Int (even)
+import Data.Maybe (fromMaybe)
+import Data.String (length, charCodeAt, joinWith)
 import Test.FlareCheck
 
 main = do
   flareCheck "length" length
   flareCheck "charCodeAt" charCodeAt
-  flareCheck "fromMaybe" $ fromMaybe :: Number -> _
+  flareCheck "joinWith" joinWith
+  flareCheck "filter even" (filter even)
+  flareCheck "fromMaybe" (fromMaybe :: Number -> _)
 </pre>
 
-    which creates the following three interactive tests:
+    which creates the following interactive tests:
 
     <div id="tests1"></div>
 
     Notice how the type information is used to automatically create appropriate
     input fields for <code>String</code>, <code>Int</code>, <code>Number</code>
-    and <code>Maybe Number</code> (we have to use a type annotation for
-    <code>fromMaybe</code> to get a concrete type).
+    as well as <code>Array String</code> and <code>Maybe Number</code> (we have
+    to use a type annotation for <code>fromMaybe</code> to get a concrete type).
 
     <h2>Custom input fields</h2>
 
@@ -95,7 +105,7 @@ flareCheck "match" $ \(TRegex regex) string -> match regex string
 
     <h2>Ideas, Questions, To do</h2>
     <ul>
-      <li>List / Array inputs would be very nice (this is related to <a href="https://github.com/sharkdp/purescript-flare/issues/2">Flare issue #2</a>)</li>
+      <li>Completely general List / Array inputs would be very nice (this is related to <a href="https://github.com/sharkdp/purescript-flare/issues/2">Flare issue #2</a>)</li>
     </ul>
 
     <script type="text/javascript" src="main.js"></script>

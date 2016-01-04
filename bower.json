@@ -12,7 +12,9 @@
     "html"
   ],
   "dependencies": {
-    "purescript-flare": "https://github.com/sharkdp/purescript-flare.git#master"
+    "purescript-flare": "https://github.com/sharkdp/purescript-flare.git#master",
+    "purescript-proxy": "^0.1.0",
+    "purescript-globals": "^0.2.2"
   },
   "resolutions": {
     "purescript-strings": "^0.7.0"
