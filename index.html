@@ -34,10 +34,9 @@
 <span id="L29" class="LineNr">29 </span>length <span class="Operator">::</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Int</span>
 <span id="L30" class="LineNr">30 </span>charCodeAt <span class="Operator">::</span> <span class="PreProc">Int</span> <span class="Operator">-&gt;</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Maybe</span> <span class="PreProc">Int</span>
 <span id="L31" class="LineNr">31 </span>joinWith <span class="Operator">::</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Array</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">String</span>
-<span id="L32" class="LineNr">32 </span>
 <span id="L33" class="LineNr">33 </span>filter <span class="Operator">::</span> <span class="Statement">forall</span> a<span class="Operator">.</span> <span class="Delimiter">(</span>a <span class="Operator">-&gt;</span> <span class="PreProc">Boolean</span><span class="Delimiter">)</span> <span class="Operator">-&gt;</span> <span class="PreProc">Array</span> a <span class="Operator">-&gt;</span> <span class="PreProc">Array</span> a
-<span id="L34" class="LineNr">34 </span>
 <span id="L35" class="LineNr">35 </span>fromMaybe <span class="Operator">::</span> <span class="Statement">forall</span> a<span class="Operator">.</span> a <span class="Operator">-&gt;</span> <span class="PreProc">Maybe</span> a <span class="Operator">-&gt;</span> a
+<span id="L35" class="LineNr">35 </span>jsonParser <span class="Operator">::</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Either</span> <span class="PreProc">String</span> <span class="PreProc">Json</span>
 </pre>
 
     We simply call the function <code>flareCheck</code> &hellip;
@@ -50,6 +49,7 @@
 <span id="L5" class="LineNr"> 5 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">Array</span> <span class="Delimiter">(</span>filter<span class="Delimiter">)</span>
 <span id="L6" class="LineNr"> 6 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">Int</span> <span class="Delimiter">(</span>even<span class="Delimiter">)</span>
 <span id="L7" class="LineNr"> 7 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">Maybe</span> <span class="Delimiter">(</span>fromMaybe<span class="Delimiter">)</span>
+<span id="L7" class="LineNr"> 7 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">Argonaut</span><span class="Operator">.</span><span class="PreProc">Parser</span> <span class="Delimiter">(</span>jsonParser<span class="Delimiter">)</span>
 <span id="L8" class="LineNr"> 8 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">String</span> <span class="Delimiter">(</span>length<span class="Delimiter">,</span> charCodeAt<span class="Delimiter">,</span> joinWith<span class="Delimiter">)</span>
 <span id="L10" class="LineNr">10 </span>
 <span id="L11" class="LineNr">11 </span><span class="Structure">import</span> <span class="PreProc">Test</span><span class="Operator">.</span><span class="PreProc">FlareCheck</span>
@@ -60,6 +60,7 @@
 <span id="L23" class="LineNr">23 </span>  flareCheck <span class="String">&quot;joinWith&quot;</span>    joinWith
 <span id="L24" class="LineNr">24 </span>  flareCheck <span class="String">&quot;filter even&quot;</span> <span class="Delimiter">(</span>filter even<span class="Delimiter">)</span>
 <span id="L25" class="LineNr">25 </span>  flareCheck <span class="String">&quot;fromMaybe&quot;</span>   <span class="Delimiter">(</span>fromMaybe <span class="Operator">::</span> <span class="PreProc">Number</span> <span class="Operator">-&gt;</span> <span class="Operator">_</span><span class="Delimiter">)</span>
+<span id="L25" class="LineNr">25 </span>  flareCheck <span class="String">&quot;jsonParser&quot;</span>  jsonParser
 </pre>
 
     &hellip; which creates the following interactive tests:
