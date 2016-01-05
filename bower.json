@@ -22,5 +22,8 @@
   },
   "resolutions": {
     "purescript-strings": "^0.7.0"
+  },
+  "devDependencies": {
+    "purescript-argonaut-core": "^0.2.3"
   }
 }

@@ -44,11 +44,20 @@ Read String
 Read Boolean
 ```
 
+#### `Renderable`
+
+``` purescript
+data Renderable
+```
+
+A data type that describes possible output actions and values for an
+interactive test.
+
 #### `Interactive`
 
 ``` purescript
 class Interactive t where
-  createUI :: forall e. UI e t -> UI e String
+  createUI :: forall e. UI e t -> UI e Renderable
 ```
 
 A type class for interactive tests. Instances must provide a way to create
@@ -60,6 +69,7 @@ Interactive Number
 Interactive Int
 Interactive String
 Interactive Boolean
+Interactive Ordering
 (Show a) => Interactive (Maybe a)
 (Show a, Show b) => Interactive (Either a b)
 (Show a, Show b) => Interactive (Tuple a b)

@@ -7,6 +7,7 @@ module Test.FlareCheck
   , read
   , Interactive
   , createUI
+  , Renderable()
   , flareCheck'
   , flareCheck
   , module Flare
@@ -16,12 +17,12 @@ import Prelude
 
 import Control.Monad.Eff (Eff())
 
-import Data.Array (catMaybes)
+import Data.Array as A
 import Data.Either (Either(..))
 import Data.Int (fromString)
 import Data.List (List(), toList)
 import Data.Maybe (Maybe(..))
-import Data.String (split)
+import Data.String (split, length)
 import Data.Tuple (Tuple(..))
 
 import Global (readFloat, isFinite)
@@ -32,6 +33,12 @@ import Signal.Channel (Chan())
 
 import DOM (DOM())
 import DOM.Node.Types (Element())
+
+import Text.Smolder.Markup as H
+import Text.Smolder.Markup ((!))
+import Text.Smolder.HTML as H
+import Text.Smolder.HTML.Attributes as HA
+import Text.Smolder.Renderer.String as H
 
 import Signal (runSignal)
 import Flare
@@ -99,7 +106,7 @@ instance readBool :: Read Boolean where
 
 -- | A UI for comma separated values.
 csvUI :: forall a e. (Read a) => UI e (Array a)
-csvUI = (catMaybes <<< map read <<< split ",") <$> string "CSV:" defaults'
+csvUI = (A.catMaybes <<< map read <<< split ",") <$> string "CSV:" defaults'
   where defaults' = defaults (Proxy :: Proxy a)
 
 instance flammableArrayRead :: (Read a) => Flammable (Array a) where
@@ -110,14 +117,20 @@ instance flammableListRead :: (Read a) => Flammable (List a) where
   spark = fieldset ("List " <> typeName') (toList <$> csvUI)
     where typeName' = typeName (Proxy :: Proxy a)
 
+-- | A data type that describes possible output actions and values for an
+-- | interactive test.
+data Renderable
+  = SetText String
+  | SetHTML H.Markup
+
 -- | A type class for interactive tests. Instances must provide a way to create
 -- | a Flare UI which returns a `String` as output.
 class Interactive t where
-  createUI :: forall e. UI e t -> UI e String
+  createUI :: forall e. UI e t -> UI e Renderable
 
 -- | A default `createUI` implementation for any `Show`able type.
-defaultCreateUI :: forall t e. (Show t) => UI e t -> UI e String
-defaultCreateUI = map show
+defaultCreateUI :: forall t e. (Show t) => UI e t -> UI e Renderable
+defaultCreateUI = map (SetText <<< show)
 
 instance interactiveNumber :: Interactive Number where
   createUI = defaultCreateUI
@@ -126,22 +139,51 @@ instance interactiveInt :: Interactive Int where
   createUI = defaultCreateUI
 
 instance interactiveString :: Interactive String where
-  createUI = defaultCreateUI
+  createUI = map (SetHTML <<< pretty)
+    where
+      pretty val = do H.pre $
+                        H.span ! HA.className "flarecheck-string" $ H.text (show val)
+                      H.text ("String length: " <> show (length val))
 
 instance interactiveBoolean :: Interactive Boolean where
+  createUI = map (SetHTML <<< pretty)
+    where
+      pretty true =  H.pre ! HA.className "flarecheck-okay" $
+                       H.b (H.text "true")
+      pretty false = H.pre ! HA.className "flarecheck-warn" $
+                       H.b (H.text "false")
+
+instance interactiveOrdering :: Interactive Ordering where
   createUI = defaultCreateUI
 
 instance interactiveMaybe :: (Show a) => Interactive (Maybe a) where
-  createUI = defaultCreateUI
+  createUI = map (SetHTML <<< pretty)
+    where
+      pretty Nothing  = H.pre ! HA.className "flarecheck-warn" $
+                          H.b (H.text "Nothing")
+      pretty (Just v) = H.pre ! HA.className "flarecheck-okay" $ do
+                          H.b (H.text "Just")
+                          H.text (" (" <> show v <> ")")
+
 
 instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
-  createUI = defaultCreateUI
+  createUI = map (SetHTML <<< pretty)
+    where
+      pretty (Left v)  = H.pre ! HA.className "flarecheck-warn" $ do
+                           H.b (H.text "Left")
+                           H.text (" (" <> show v <> ")")
+      pretty (Right v) = H.pre ! HA.className "flarecheck-okay" $ do
+                           H.b (H.text "Right")
+                           H.text (" (" <> show v <> ")")
 
 instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
   createUI = defaultCreateUI
 
 instance interactiveArray :: (Show a) => Interactive (Array a) where
-  createUI = defaultCreateUI
+  createUI = map (SetHTML <<< pretty)
+    where
+      pretty val = do H.pre $ H.text (show val)
+                      H.text ("Array length: " <> show (A.length val))
 
 instance interactiveList :: (Show a) => Interactive (List a) where
   createUI = defaultCreateUI
@@ -158,9 +200,20 @@ foreign import appendTest :: forall e. ElementId
                           -> Eff (dom :: DOM | e) Element
 
 -- | Write the string to the specified output element.
-foreign import printOutput :: forall e. Element
-                           -> String
-                           -> Eff (dom :: DOM | e) Unit
+foreign import setText :: forall e. Element
+                       -> String
+                       -> Eff (dom :: DOM | e) Unit
+
+-- | Set innerHTML of the specified output element.
+foreign import setHTML :: forall e. Element
+                       -> String
+                       -> Eff (dom :: DOM | e) Unit
+
+render :: forall e. Element
+       -> Renderable
+       -> Eff (dom :: DOM | e) Unit
+render output (SetText str) = setText output str
+render output (SetHTML markup) = setHTML output (H.render markup)
 
 -- | Run an interactive test. The ID specifies the parent element to which
 -- | the test will be appended and the label provides a title for the test.
@@ -173,7 +226,7 @@ flareCheck' parentId title x = do
   let flare = createUI (pure x)
   { components, signal } <- setupFlare flare
   output <- appendTest parentId title components
-  runSignal (printOutput output <$> signal)
+  runSignal (render output <$> signal)
 
 -- | Run an interactive test. The label provides a title for the test.
 flareCheck :: forall t e. (Interactive t)

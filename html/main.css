@@ -50,6 +50,19 @@ legend {
 
 .flarecheck-test {
     margin-top: 15px;
+    margin-bottom: 40px;
+}
+
+.flarecheck-okay {
+    background-color: #B4DEAF;
+}
+
+.flarecheck-warn {
+    background-color: #DEAFB4;
+}
+
+.flarecheck-string {
+    color: #E91E63;
 }
 
 /* Syntax highlighting */

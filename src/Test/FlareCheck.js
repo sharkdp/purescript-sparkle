@@ -15,22 +15,36 @@ exports.appendTest = function(parentId) {
           fieldset.appendChild(elements[i]);
         }
 
-        preOutput = document.createElement("pre");
-        preOutput.className = "flarecheck-output";
-        fieldset.appendChild(preOutput);
+        output = document.createElement("div");
+        output.className = "flarecheck-output";
+        fieldset.appendChild(output);
 
         parent.appendChild(fieldset);
 
-        return preOutput;
+        return output;
       };
     };
   };
 };
 
-exports.printOutput = function(el) {
-  return function(output) {
+exports.setText = function(output) {
+  return function(str) {
     return function() {
-      el.innerHTML = output;
+      var pre = output.firstChild;
+      if (!pre) {
+        pre = document.createElement("pre");
+        pre.className = "flarecheck-output-settext";
+        output.appendChild(pre);
+      }
+      pre.innerText = str;
+    };
+  };
+};
+
+exports.setHTML = function(output) {
+  return function(code) {
+    return function() {
+      output.innerHTML = code;
     };
   };
 };
