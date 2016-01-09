@@ -1793,23 +1793,34 @@ var PS = { };
 
   "use strict";
 
+  // This function maintains a global state `window.flareID` to generate unique
+  // DOM element IDs. It is only called from functions with a DOM effect.
+  function getUniqueID() {
+    if (window.flareID === undefined) {
+      window.flareID = 0;
+    }
+    window.flareID = window.flareID + 1;
+    return "flare-component-" + window.flareID.toString();
+  }
+
   function createComponent(inputType, elementCallback, eventType, eventListener) {
-    return function(id) {
+    return function(label) {
       return function(initial) {
         return function(send) {
           return function() {
+            var uid = getUniqueID();
             var el = elementCallback(initial);
             el.className = "flare-input-" + inputType;
+            el.id = uid;
 
             var div = document.createElement("div");
             div.className = "flare-input";
 
-            if (id !== "") {
-              el.id = id;
-              var label = document.createElement("label");
-              label.htmlFor = id;
-              label.appendChild(document.createTextNode(id));
-              div.appendChild(label);
+            if (label !== "") {
+              var labelEl = document.createElement("label");
+              labelEl.htmlFor = uid;
+              labelEl.appendChild(document.createTextNode(label));
+              div.appendChild(labelEl);
             }
 
             div.appendChild(el);
@@ -2102,11 +2113,11 @@ var PS = { };
       };
   };
   var createUI = function (createComp) {
-      return function (id) {
+      return function (label) {
           return function ($$default) {
               return UI(function __do() {
                   var _1 = Signal_Channel.channel($$default)();
-                  var _0 = createComp(id)($$default)(Signal_Channel.send(_1))();
+                  var _0 = createComp(label)($$default)(Signal_Channel.send(_1))();
                   return (function () {
                       var signal = Signal_Channel.subscribe(_1);
                       return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ _0 ], signal));
@@ -2115,8 +2126,8 @@ var PS = { };
           };
       };
   };
-  var $$int = function (id) {
-      return createUI($foreign.cIntRange("number")(Prelude.bottom(Prelude.boundedInt))(Prelude.top(Prelude.boundedInt)))(id);
+  var $$int = function (label) {
+      return createUI($foreign.cIntRange("number")(Prelude.bottom(Prelude.boundedInt))(Prelude.top(Prelude.boundedInt)))(label);
   };                             
   var number = createUI($foreign.cNumber);
   var string = createUI($foreign.cString);
@@ -2161,6 +2172,10 @@ var PS = { };
 })(PS["Flare"] = PS["Flare"] || {});
 (function(exports) {
   // module Test.FlareCheck
+  // jshint browser: true
+  // jshint node: true
+
+  "use strict";
 
   exports.appendTest = function(parentId) {
     return function(title) {
@@ -2177,7 +2192,7 @@ var PS = { };
             fieldset.appendChild(elements[i]);
           }
 
-          output = document.createElement("div");
+          var output = document.createElement("div");
           output.className = "flarecheck-output";
           fieldset.appendChild(output);
 
@@ -2187,6 +2202,16 @@ var PS = { };
         };
       };
     };
+  };
+
+  // From http://stackoverflow.com/a/6234804/704831
+  exports.escapeHTML = function(unsafe) {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   };
 
   exports.setText = function(output) {
@@ -2573,6 +2598,9 @@ var PS = { };
   var typeName = function (dict) {
       return dict.typeName;
   };
+  var text = function (s) {
+      return Text_Smolder_Markup.text($foreign.escapeHTML(s));
+  };
   var spark = function (dict) {
       return dict.spark;
   };
@@ -2584,7 +2612,7 @@ var PS = { };
           if (_2 instanceof SetHTML) {
               return $foreign.setHTML(output)(Text_Smolder_Renderer_String.render(_2.value0));
           };
-          throw new Error("Failed pattern match at Test.FlareCheck line 212, column 1 - line 215, column 1: " + [ output.constructor.name, _2.constructor.name ]);
+          throw new Error("Failed pattern match at Test.FlareCheck line 230, column 1 - line 233, column 1: " + [ output.constructor.name, _2.constructor.name ]);
       };
   };
   var readString = new Read(function (_10) {
@@ -2602,50 +2630,50 @@ var PS = { };
   };
   var interactiveString = new Interactive((function () {
       var pretty = function (val) {
-          return Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.pre(Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.span)(Text_Smolder_HTML_Attributes.className("flarecheck-string"))(Text_Smolder_Markup.text(Prelude.show(Prelude.showString)(val)))))(function () {
-              return Text_Smolder_Markup.text("String length: " + Prelude.show(Prelude.showInt)(Data_String.length(val)));
+          return Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.pre(Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.span)(Text_Smolder_HTML_Attributes.className("flarecheck-string"))(text(Prelude.show(Prelude.showString)(val)))))(function () {
+              return text("String length: " + Prelude.show(Prelude.showInt)(Data_String.length(val)));
           });
       };
-      return Prelude.map(Flare.functorUI)(function (_38) {
-          return SetHTML.create(pretty(_38));
+      return Prelude.map(Flare.functorUI)(function (_40) {
+          return SetHTML.create(pretty(_40));
       });
   })());
   var interactiveMaybe = function (__dict_Show_0) {
       return new Interactive((function () {
-          var pretty = function (_15) {
-              if (_15 instanceof Data_Maybe.Nothing) {
-                  return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-warn"))(Text_Smolder_HTML.b(Text_Smolder_Markup.text("Nothing")));
+          var pretty = function (_17) {
+              if (_17 instanceof Data_Maybe.Nothing) {
+                  return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-warn"))(Text_Smolder_HTML.b(text("Nothing")));
               };
-              if (_15 instanceof Data_Maybe.Just) {
-                  return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-okay"))(Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.b(Text_Smolder_Markup.text("Just")))(function () {
-                      return Text_Smolder_Markup.text(" (" + (Prelude.show(__dict_Show_0)(_15.value0) + ")"));
+              if (_17 instanceof Data_Maybe.Just) {
+                  return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-okay"))(Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.b(text("Just")))(function () {
+                      return text(" (" + (Prelude.show(__dict_Show_0)(_17.value0) + ")"));
                   }));
               };
-              throw new Error("Failed pattern match at Test.FlareCheck line 162, column 7 - line 164, column 7: " + [ _15.constructor.name ]);
+              throw new Error("Failed pattern match at Test.FlareCheck line 173, column 7 - line 175, column 7: " + [ _17.constructor.name ]);
           };
-          return Prelude.map(Flare.functorUI)(function (_39) {
-              return SetHTML.create(pretty(_39));
+          return Prelude.map(Flare.functorUI)(function (_41) {
+              return SetHTML.create(pretty(_41));
           });
       })());
   };
   var interactiveEither = function (__dict_Show_1) {
       return function (__dict_Show_2) {
           return new Interactive((function () {
-              var pretty = function (_16) {
-                  if (_16 instanceof Data_Either.Left) {
-                      return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-warn"))(Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.b(Text_Smolder_Markup.text("Left")))(function () {
-                          return Text_Smolder_Markup.text(" (" + (Prelude.show(__dict_Show_1)(_16.value0) + ")"));
+              var pretty = function (_18) {
+                  if (_18 instanceof Data_Either.Left) {
+                      return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-warn"))(Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.b(text("Left")))(function () {
+                          return text(" (" + (Prelude.show(__dict_Show_1)(_18.value0) + ")"));
                       }));
                   };
-                  if (_16 instanceof Data_Either.Right) {
-                      return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-okay"))(Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.b(Text_Smolder_Markup.text("Right")))(function () {
-                          return Text_Smolder_Markup.text(" (" + (Prelude.show(__dict_Show_2)(_16.value0) + ")"));
+                  if (_18 instanceof Data_Either.Right) {
+                      return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-okay"))(Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.b(text("Right")))(function () {
+                          return text(" (" + (Prelude.show(__dict_Show_2)(_18.value0) + ")"));
                       }));
                   };
-                  throw new Error("Failed pattern match at Test.FlareCheck line 172, column 7 - line 175, column 7: " + [ _16.constructor.name ]);
+                  throw new Error("Failed pattern match at Test.FlareCheck line 183, column 7 - line 186, column 7: " + [ _18.constructor.name ]);
               };
-              return Prelude.map(Flare.functorUI)(function (_40) {
-                  return SetHTML.create(pretty(_40));
+              return Prelude.map(Flare.functorUI)(function (_42) {
+                  return SetHTML.create(pretty(_42));
               });
           })());
       };
@@ -2653,12 +2681,12 @@ var PS = { };
   var interactiveArray = function (__dict_Show_3) {
       return new Interactive((function () {
           var pretty = function (val) {
-              return Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.pre(Text_Smolder_Markup.text(Prelude.show(Prelude.showArray(__dict_Show_3))(val))))(function () {
-                  return Text_Smolder_Markup.text("Array length: " + Prelude.show(Prelude.showInt)(Data_Array.length(val)));
+              return Prelude.bind(Text_Smolder_Markup.bindMarkupM)(Text_Smolder_HTML.pre(text(Prelude.show(Prelude.showArray(__dict_Show_3))(val))))(function () {
+                  return text("Array length: " + Prelude.show(Prelude.showInt)(Data_Array.length(val)));
               });
           };
-          return Prelude.map(Flare.functorUI)(function (_42) {
-              return SetHTML.create(pretty(_42));
+          return Prelude.map(Flare.functorUI)(function (_44) {
+              return SetHTML.create(pretty(_44));
           });
       })());
   };
@@ -2674,7 +2702,7 @@ var PS = { };
                   if (!_3) {
                       return Data_Maybe.Nothing.value;
                   };
-                  throw new Error("Failed pattern match at Test.FlareCheck line 69, column 11 - line 70, column 11: " + [ _3.constructor.name, x.constructor.name ]);
+                  throw new Error("Failed pattern match at Test.FlareCheck line 72, column 11 - line 73, column 11: " + [ _3.constructor.name, x.constructor.name ]);
               };
           };
           return Flare.fieldset("Maybe")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(toMaybe)(Flare["boolean"]("Just")(true)))(spark(__dict_Flammable_6)));
@@ -2685,16 +2713,16 @@ var PS = { };
       return dict.defaults;
   };
   var defaultCreateUI = function (__dict_Show_9) {
-      return Prelude.map(Flare.functorUI)(function (_43) {
-          return SetText.create(Prelude.show(__dict_Show_9)(_43));
+      return Prelude.map(Flare.functorUI)(function (_45) {
+          return SetText.create(Prelude.show(__dict_Show_9)(_45));
       });
-  };
+  };                                                                       
   var interactiveInt = new Interactive(defaultCreateUI(Prelude.showInt));
   var interactiveNumber = new Interactive(defaultCreateUI(Prelude.showNumber));
   var csvUI = function (__dict_Read_13) {
       var defaults$prime = defaults(__dict_Read_13)(Type_Proxy.Proxy.value);
-      return Prelude["<$>"](Flare.functorUI)(function (_44) {
-          return Data_Array.catMaybes(Prelude.map(Prelude.functorArray)(read(__dict_Read_13))(Data_String.split(",")(_44)));
+      return Prelude["<$>"](Flare.functorUI)(function (_46) {
+          return Data_Array.catMaybes(Prelude.map(Prelude.functorArray)(read(__dict_Read_13))(Data_String.split(",")(_46)));
       })(Flare.string("CSV:")(defaults$prime));
   };
   var flammableArrayRead = function (__dict_Read_14) {
