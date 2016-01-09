@@ -16,6 +16,7 @@ type `a`.
 Flammable Number
 Flammable Int
 Flammable String
+Flammable Char
 Flammable Boolean
 (Flammable a, Flammable b) => Flammable (Tuple a b)
 (Flammable a) => Flammable (Maybe a)
@@ -41,6 +42,7 @@ to construct input fields for `Array a` and `List a`.
 Read Number
 Read Int
 Read String
+Read Char
 Read Boolean
 ```
 
@@ -68,6 +70,7 @@ a Flare UI which returns a `String` as output.
 Interactive Number
 Interactive Int
 Interactive String
+Interactive Char
 Interactive Boolean
 Interactive Ordering
 (Show a) => Interactive (Maybe a)

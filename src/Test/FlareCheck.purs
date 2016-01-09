@@ -21,8 +21,8 @@ import Data.Array as A
 import Data.Either (Either(..))
 import Data.Int (fromString)
 import Data.List (List(), toList)
-import Data.Maybe (Maybe(..))
-import Data.String (split, length)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.String (split, length, charAt)
 import Data.Tuple (Tuple(..))
 
 import Global (readFloat, isFinite)
@@ -57,6 +57,9 @@ instance flammableInt :: Flammable Int where
 
 instance flammableString :: Flammable String where
   spark = string "String" "foo"
+
+instance flammableChar :: Flammable Char where
+  spark = fromMaybe ' ' <$> charAt 0 <$> stringPattern "Char" "^.$" "f"
 
 instance flammableBoolean :: Flammable Boolean where
   spark = boolean "Boolean" false
@@ -96,6 +99,11 @@ instance readString :: Read String where
   typeName _ = "String"
   defaults _ = "foo,bar,baz"
   read = Just
+
+instance readChar :: Read Char where
+  typeName _ = "Char"
+  defaults _ = "f,o,o"
+  read = charAt 0
 
 instance readBool :: Read Boolean where
   typeName _ = "Boolean"
@@ -144,6 +152,9 @@ instance interactiveString :: Interactive String where
       pretty val = do H.pre $
                         H.span ! HA.className "flarecheck-string" $ H.text (show val)
                       H.text ("String length: " <> show (length val))
+
+instance interactiveChar :: Interactive Char where
+  createUI = defaultCreateUI
 
 instance interactiveBoolean :: Interactive Boolean where
   createUI = map (SetHTML <<< pretty)
