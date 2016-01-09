@@ -150,8 +150,8 @@ instance interactiveString :: Interactive String where
   createUI = map (SetHTML <<< pretty)
     where
       pretty val = do H.pre $
-                        H.span ! HA.className "flarecheck-string" $ H.text (show val)
-                      H.text ("String length: " <> show (length val))
+                        H.span ! HA.className "flarecheck-string" $ text (show val)
+                      text ("String length: " <> show (length val))
 
 instance interactiveChar :: Interactive Char where
   createUI = defaultCreateUI
@@ -160,9 +160,9 @@ instance interactiveBoolean :: Interactive Boolean where
   createUI = map (SetHTML <<< pretty)
     where
       pretty true =  H.pre ! HA.className "flarecheck-okay" $
-                       H.b (H.text "true")
+                       H.b (text "true")
       pretty false = H.pre ! HA.className "flarecheck-warn" $
-                       H.b (H.text "false")
+                       H.b (text "false")
 
 instance interactiveOrdering :: Interactive Ordering where
   createUI = defaultCreateUI
@@ -171,21 +171,21 @@ instance interactiveMaybe :: (Show a) => Interactive (Maybe a) where
   createUI = map (SetHTML <<< pretty)
     where
       pretty Nothing  = H.pre ! HA.className "flarecheck-warn" $
-                          H.b (H.text "Nothing")
+                          H.b (text "Nothing")
       pretty (Just v) = H.pre ! HA.className "flarecheck-okay" $ do
-                          H.b (H.text "Just")
-                          H.text (" (" <> show v <> ")")
+                          H.b (text "Just")
+                          text (" (" <> show v <> ")")
 
 
 instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
   createUI = map (SetHTML <<< pretty)
     where
       pretty (Left v)  = H.pre ! HA.className "flarecheck-warn" $ do
-                           H.b (H.text "Left")
-                           H.text (" (" <> show v <> ")")
+                           H.b (text "Left")
+                           text (" (" <> show v <> ")")
       pretty (Right v) = H.pre ! HA.className "flarecheck-okay" $ do
-                           H.b (H.text "Right")
-                           H.text (" (" <> show v <> ")")
+                           H.b (text "Right")
+                           text (" (" <> show v <> ")")
 
 instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
   createUI = defaultCreateUI
@@ -193,8 +193,8 @@ instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
 instance interactiveArray :: (Show a) => Interactive (Array a) where
   createUI = map (SetHTML <<< pretty)
     where
-      pretty val = do H.pre $ H.text (show val)
-                      H.text ("Array length: " <> show (A.length val))
+      pretty val = do H.pre $ text (show val)
+                      text ("Array length: " <> show (A.length val))
 
 instance interactiveList :: (Show a) => Interactive (List a) where
   createUI = defaultCreateUI
@@ -209,6 +209,13 @@ foreign import appendTest :: forall e. ElementId
                           -> String
                           -> Array Element
                           -> Eff (dom :: DOM | e) Element
+
+-- | Escape HTML special characters
+foreign import escapeHTML :: String -> String
+
+-- | Same as `text` from Smolder, but escapes special characters
+text :: String -> H.Markup
+text s = H.text (escapeHTML s)
 
 -- | Write the string to the specified output element.
 foreign import setText :: forall e. Element

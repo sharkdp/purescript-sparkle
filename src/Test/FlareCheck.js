@@ -1,4 +1,8 @@
 // module Test.FlareCheck
+// jshint browser: true
+// jshint node: true
+
+"use strict";
 
 exports.appendTest = function(parentId) {
   return function(title) {
@@ -15,7 +19,7 @@ exports.appendTest = function(parentId) {
           fieldset.appendChild(elements[i]);
         }
 
-        output = document.createElement("div");
+        var output = document.createElement("div");
         output.className = "flarecheck-output";
         fieldset.appendChild(output);
 
@@ -25,6 +29,16 @@ exports.appendTest = function(parentId) {
       };
     };
   };
+};
+
+// From http://stackoverflow.com/a/6234804/704831
+exports.escapeHTML = function(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 };
 
 exports.setText = function(output) {
