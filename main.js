@@ -2223,7 +2223,7 @@ var PS = { };
           pre.className = "flarecheck-output-settext";
           output.appendChild(pre);
         }
-        pre.innerText = str;
+        pre.textContent = str;
       };
     };
   };
