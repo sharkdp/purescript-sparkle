@@ -19,6 +19,7 @@ import Control.Monad.Eff (Eff())
 
 import Data.Array as A
 import Data.Either (Either(..))
+import Data.Foldable (foldMap)
 import Data.Int (fromString)
 import Data.List (List(), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -193,7 +194,9 @@ instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
 instance interactiveArray :: (Show a) => Interactive (Array a) where
   createUI = map (SetHTML <<< pretty)
     where
-      pretty val = do H.pre $ text (show val)
+      pretty val = do H.table $
+                        H.tr $
+                          foldMap (H.td <<< H.pre <<< text <<< show) val
                       text ("Array length: " <> show (A.length val))
 
 instance interactiveList :: (Show a) => Interactive (List a) where
