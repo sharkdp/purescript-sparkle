@@ -2612,7 +2612,7 @@ var PS = { };
           if (v instanceof SetHTML) {
               return $foreign.setHTML(output)(Text_Smolder_Renderer_String.render(v.value0));
           };
-          throw new Error("Failed pattern match at Test.FlareCheck line 236, column 1 - line 239, column 1: " + [ output.constructor.name, v.constructor.name ]);
+          throw new Error("Failed pattern match at Test.FlareCheck line 242, column 1 - line 245, column 1: " + [ output.constructor.name, v.constructor.name ]);
       };
   };
   var readString = new Read(function (v) {
@@ -2634,8 +2634,8 @@ var PS = { };
               return text("String length: " + Prelude.show(Prelude.showInt)(Data_String.length(val)));
           });
       };
-      return Prelude.map(Flare.functorUI)(function ($62) {
-          return SetHTML.create(pretty($62));
+      return Prelude.map(Flare.functorUI)(function ($64) {
+          return SetHTML.create(pretty($64));
       });
   })());
   var interactiveMaybe = function (dictShow) {
@@ -2651,8 +2651,8 @@ var PS = { };
               };
               throw new Error("Failed pattern match at Test.FlareCheck line 182, column 7 - line 184, column 7: " + [ v.constructor.name ]);
           };
-          return Prelude.map(Flare.functorUI)(function ($63) {
-              return SetHTML.create(pretty($63));
+          return Prelude.map(Flare.functorUI)(function ($65) {
+              return SetHTML.create(pretty($65));
           });
       })());
   };
@@ -2672,11 +2672,26 @@ var PS = { };
                   };
                   throw new Error("Failed pattern match at Test.FlareCheck line 192, column 7 - line 195, column 7: " + [ v.constructor.name ]);
               };
-              return Prelude.map(Flare.functorUI)(function ($64) {
-                  return SetHTML.create(pretty($64));
+              return Prelude.map(Flare.functorUI)(function ($66) {
+                  return SetHTML.create(pretty($66));
               });
           })());
       };
+  };    
+  var interactiveArray = function (dictShow) {
+      return new Interactive((function () {
+          var pretty = function (v) {
+              if (v.length === 0) {
+                  return Text_Smolder_HTML.table(Text_Smolder_HTML.tr(Text_Smolder_HTML.td(Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className("flarecheck-warn"))(text("Empty Array")))));
+              };
+              return Text_Smolder_HTML.table(Text_Smolder_HTML.tr(Data_Foldable.foldMap(Data_Foldable.foldableArray)(Text_Smolder_Markup.monoidMarkup)(function ($68) {
+                  return Text_Smolder_HTML.td(Text_Smolder_HTML.pre(text(Prelude.show(dictShow)($68))));
+              })(v)));
+          };
+          return Prelude.map(Flare.functorUI)(function ($69) {
+              return SetHTML.create(pretty($69));
+          });
+      })());
   };
   var flammableString = new Flammable(Flare.string("String")("foo"));
   var flammableNumber = new Flammable(Flare.number("Number")(3.14));
@@ -2702,8 +2717,8 @@ var PS = { };
   };
   var csvUI = function (dictRead) {
       var defaults$prime = defaults(dictRead)((Type_Proxy["Proxy"]).value);
-      return Prelude["<$>"](Flare.functorUI)(function ($66) {
-          return Data_Array.catMaybes(Prelude.map(Prelude.functorArray)(read(dictRead))(Data_String.split(",")($66)));
+      return Prelude["<$>"](Flare.functorUI)(function ($70) {
+          return Data_Array.catMaybes(Prelude.map(Prelude.functorArray)(read(dictRead))(Data_String.split(",")($70)));
       })(Flare.string("CSV:")(defaults$prime));
   };
   var flammableArrayRead = function (dictRead) {
@@ -2713,27 +2728,12 @@ var PS = { };
       })());
   };
   var createUIShow = function (dictShow) {
-      return Prelude.map(Flare.functorUI)(function ($67) {
-          return SetText.create(Prelude.show(dictShow)($67));
+      return Prelude.map(Flare.functorUI)(function ($71) {
+          return SetText.create(Prelude.show(dictShow)($71));
       });
   };                                                                    
   var interactiveInt = new Interactive(createUIShow(Prelude.showInt));
   var interactiveNumber = new Interactive(createUIShow(Prelude.showNumber));
-  var createUIFoldable = function (dictFoldable) {
-      return function (dictShow) {
-          var pretty = function (val) {
-              return Text_Smolder_HTML.table(Text_Smolder_HTML.tr(Data_Foldable.foldMap(dictFoldable)(Text_Smolder_Markup.monoidMarkup)(function ($68) {
-                  return Text_Smolder_HTML.td(Text_Smolder_HTML.pre(text(Prelude.show(dictShow)($68))));
-              })(val)));
-          };
-          return Prelude.map(Flare.functorUI)(function ($69) {
-              return SetHTML.create(pretty($69));
-          });
-      };
-  };
-  var interactiveArray = function (dictShow) {
-      return new Interactive(createUIFoldable(Data_Foldable.foldableArray)(dictShow));
-  };
   var createUI = function (dict) {
       return dict.createUI;
   };
