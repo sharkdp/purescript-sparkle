@@ -18,7 +18,8 @@
   "dependencies": {
     "purescript-flare": "^0.4.2",
     "purescript-proxy": "^0.1.0",
-    "purescript-globals": "^0.2.2"
+    "purescript-globals": "^0.2.2",
+    "purescript-generics": "^0.7.1"
   },
   "resolutions": {
     "purescript-strings": "^0.7.0"

@@ -1,11 +1,11 @@
 module Test.FlareCheck
-  ( Flammable
+  ( class Flammable
   , spark
-  , Read
+  , class Read
   , typeName
   , defaults
   , read
-  , Interactive
+  , class Interactive
   , createUI
   , Renderable()
   , flareCheck'
@@ -19,7 +19,8 @@ import Control.Monad.Eff (Eff())
 
 import Data.Array as A
 import Data.Either (Either(..))
-import Data.Foldable (class Foldable, foldMap)
+import Data.Foldable (class Foldable, foldMap, for_, intercalate)
+import Data.Generic (GenericSpine(..))
 import Data.Int (fromString)
 import Data.List (List(), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -149,32 +150,68 @@ createUIFoldable = map (SetHTML <<< pretty)
       H.table $
         H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
 
+-- | Takes a CSS classname and a `String` and returns a 'syntax highlighted'
+-- | version of the `String`.
+highlight :: String -> String -> H.Markup
+highlight syntaxClass value =
+  H.span ! HA.className ("flarecheck-" <> syntaxClass) $ text value
+
 instance interactiveNumber :: Interactive Number where
-  createUI = createUIShow
+  createUI = map (SetHTML <<< H.pre <<< highlight "number" <<< show)
 
 instance interactiveInt :: Interactive Int where
-  createUI = createUIShow
+  createUI = map (SetHTML <<< H.pre <<< highlight "number" <<< show)
 
 instance interactiveString :: Interactive String where
   createUI = map (SetHTML <<< pretty)
     where
-      pretty val = do H.pre $
-                        H.span ! HA.className "flarecheck-string" $ text (show val)
+      pretty val = do H.pre $ highlight "string" (show val)
                       text ("String length: " <> show (length val))
 
 instance interactiveChar :: Interactive Char where
-  createUI = createUIShow
+  createUI = map (SetHTML <<< H.pre <<< highlight "string" <<< show)
 
 instance interactiveBoolean :: Interactive Boolean where
   createUI = map (SetHTML <<< pretty)
     where
       pretty true =  H.pre ! HA.className "flarecheck-okay" $
-                       H.b (text "true")
+                       highlight "boolean" "true"
       pretty false = H.pre ! HA.className "flarecheck-warn" $
-                       H.b (text "false")
+                       highlight "boolean" "false"
 
 instance interactiveOrdering :: Interactive Ordering where
   createUI = createUIShow
+
+instance genericSpineInteractive :: Interactive GenericSpine where
+  createUI = map (SetHTML <<< H.pre <<< pretty)
+    where
+      pretty :: GenericSpine -> H.Markup
+      pretty (SProd s arr) =
+        if A.null arr
+        then text s
+        else do
+          text s
+          for_ arr \f -> do
+            text " "
+            pretty (f unit)
+      pretty (SRecord arr) = do
+        text "{"
+        intercalate (text ", ") (map recEntry arr)
+        text "}"
+          where
+            recEntry x = do
+              text x.recLabel
+              text ": "
+              pretty (x.recValue unit)
+      pretty (SBoolean x)  = highlight "boolean" (show x)
+      pretty (SInt x)      = highlight "number" (show x)
+      pretty (SNumber x)   = highlight "number" (show x)
+      pretty (SString x)   = highlight "string" (show x)
+      pretty (SChar x)     = highlight "string" (show x)
+      pretty (SArray arr)  = do
+        text "["
+        intercalate (text ", ") (map (\x -> pretty (x unit)) arr)
+        text "]"
 
 instance interactiveMaybe :: (Show a) => Interactive (Maybe a) where
   createUI = map (SetHTML <<< pretty)
@@ -184,7 +221,6 @@ instance interactiveMaybe :: (Show a) => Interactive (Maybe a) where
       pretty (Just v) = H.pre ! HA.className "flarecheck-okay" $ do
                           H.b (text "Just")
                           text (" (" <> show v <> ")")
-
 
 instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
   createUI = map (SetHTML <<< pretty)

@@ -73,6 +73,7 @@ Interactive String
 Interactive Char
 Interactive Boolean
 Interactive Ordering
+Interactive GenericSpine
 (Show a) => Interactive (Maybe a)
 (Show a, Show b) => Interactive (Either a b)
 (Show a, Show b) => Interactive (Tuple a b)
