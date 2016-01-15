@@ -65,6 +65,19 @@ legend {
     color: #E91E63;
 }
 
+td {
+    border: 1px solid black;
+}
+
+td > pre {
+    margin: 0;
+}
+
+table {
+    margin-left: 2px;
+    margin-bottom: 10px;
+}
+
 /* Syntax highlighting */
 .LineNr {
     display: none;
