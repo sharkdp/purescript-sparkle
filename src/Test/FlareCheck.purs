@@ -19,7 +19,7 @@ import Control.Monad.Eff (Eff())
 
 import Data.Array as A
 import Data.Either (Either(..))
-import Data.Foldable (foldMap)
+import Data.Foldable (class Foldable, foldMap)
 import Data.Int (fromString)
 import Data.List (List(), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -138,14 +138,22 @@ class Interactive t where
   createUI :: forall e. UI e t -> UI e Renderable
 
 -- | A default `createUI` implementation for any `Show`able type.
-defaultCreateUI :: forall t e. (Show t) => UI e t -> UI e Renderable
-defaultCreateUI = map (SetText <<< show)
+createUIShow :: forall t e. (Show t) => UI e t -> UI e Renderable
+createUIShow = map (SetText <<< show)
+
+-- | A default `createUI` implementation for `Foldable` types.
+createUIFoldable :: forall f a e. (Foldable f, Show a) => UI e (f a) -> UI e Renderable
+createUIFoldable = map (SetHTML <<< pretty)
+  where
+    pretty val = do
+      H.table $
+        H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
 
 instance interactiveNumber :: Interactive Number where
-  createUI = defaultCreateUI
+  createUI = createUIShow
 
 instance interactiveInt :: Interactive Int where
-  createUI = defaultCreateUI
+  createUI = createUIShow
 
 instance interactiveString :: Interactive String where
   createUI = map (SetHTML <<< pretty)
@@ -155,7 +163,7 @@ instance interactiveString :: Interactive String where
                       text ("String length: " <> show (length val))
 
 instance interactiveChar :: Interactive Char where
-  createUI = defaultCreateUI
+  createUI = createUIShow
 
 instance interactiveBoolean :: Interactive Boolean where
   createUI = map (SetHTML <<< pretty)
@@ -166,7 +174,7 @@ instance interactiveBoolean :: Interactive Boolean where
                        H.b (text "false")
 
 instance interactiveOrdering :: Interactive Ordering where
-  createUI = defaultCreateUI
+  createUI = createUIShow
 
 instance interactiveMaybe :: (Show a) => Interactive (Maybe a) where
   createUI = map (SetHTML <<< pretty)
@@ -189,18 +197,13 @@ instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
                            text (" (" <> show v <> ")")
 
 instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
-  createUI = defaultCreateUI
+  createUI = createUIShow
 
 instance interactiveArray :: (Show a) => Interactive (Array a) where
-  createUI = map (SetHTML <<< pretty)
-    where
-      pretty val = do H.table $
-                        H.tr $
-                          foldMap (H.td <<< H.pre <<< text <<< show) val
-                      text ("Array length: " <> show (A.length val))
+  createUI = createUIFoldable
 
 instance interactiveList :: (Show a) => Interactive (List a) where
-  createUI = defaultCreateUI
+  createUI = createUIFoldable
 
 instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -> b) where
   createUI f = createUI (f <*> spark)
