@@ -60,3 +60,4 @@ pulp build -O -I test -m Test.Main -t test.js
 <div id="tests"></div>
 <script src="test.js"></script>
 ```
+See the [assets](assets) folder for a HTML and CSS template.
