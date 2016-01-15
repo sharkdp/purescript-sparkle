@@ -7,6 +7,9 @@ module Test.FlareCheck
   , read
   , class Interactive
   , createUI
+  , showCreateUI
+  , foldableCreateUI
+  , gCreateUI
   , Renderable()
   , flareCheck'
   , flareCheck
@@ -20,7 +23,7 @@ import Control.Monad.Eff (Eff())
 import Data.Array as A
 import Data.Either (Either(..))
 import Data.Foldable (class Foldable, foldMap, for_, intercalate)
-import Data.Generic (GenericSpine(..))
+import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
 import Data.List (List(), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -139,16 +142,20 @@ class Interactive t where
   createUI :: forall e. UI e t -> UI e Renderable
 
 -- | A default `createUI` implementation for any `Show`able type.
-createUIShow :: forall t e. (Show t) => UI e t -> UI e Renderable
-createUIShow = map (SetText <<< show)
+showCreateUI :: forall t e. (Show t) => UI e t -> UI e Renderable
+showCreateUI = map (SetText <<< show)
 
 -- | A default `createUI` implementation for `Foldable` types.
-createUIFoldable :: forall f a e. (Foldable f, Show a) => UI e (f a) -> UI e Renderable
-createUIFoldable = map (SetHTML <<< pretty)
+foldableCreateUI :: forall f a e. (Foldable f, Show a) => UI e (f a) -> UI e Renderable
+foldableCreateUI = map (SetHTML <<< pretty)
   where
     pretty val = do
       H.table $
         H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
+
+-- | A `createUI` implementation for types with a `Generic` instance.
+gCreateUI :: forall a e. (Generic a) => UI e a -> UI e Renderable
+gCreateUI ui = createUI (toSpine <$> ui)
 
 -- | Takes a CSS classname and a `String` and returns a 'syntax highlighted'
 -- | version of the `String`.
@@ -180,7 +187,7 @@ instance interactiveBoolean :: Interactive Boolean where
                        highlight "boolean" "false"
 
 instance interactiveOrdering :: Interactive Ordering where
-  createUI = createUIShow
+  createUI = showCreateUI
 
 instance genericSpineInteractive :: Interactive GenericSpine where
   createUI = map (SetHTML <<< H.pre <<< pretty)
@@ -233,7 +240,7 @@ instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
                            text (" (" <> show v <> ")")
 
 instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
-  createUI = createUIShow
+  createUI = showCreateUI
 
 instance interactiveArray :: (Show a) => Interactive (Array a) where
   createUI = map (SetHTML <<< pretty)
@@ -245,7 +252,7 @@ instance interactiveArray :: (Show a) => Interactive (Array a) where
           H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
 
 instance interactiveList :: (Show a) => Interactive (List a) where
-  createUI = createUIFoldable
+  createUI = foldableCreateUI
 
 instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -> b) where
   createUI f = createUI (f <*> spark)

@@ -82,6 +82,30 @@ Interactive GenericSpine
 (Flammable a, Interactive b) => Interactive (a -> b)
 ```
 
+#### `showCreateUI`
+
+``` purescript
+showCreateUI :: forall t e. (Show t) => UI e t -> UI e Renderable
+```
+
+A default `createUI` implementation for any `Show`able type.
+
+#### `foldableCreateUI`
+
+``` purescript
+foldableCreateUI :: forall f a e. (Foldable f, Show a) => UI e (f a) -> UI e Renderable
+```
+
+A default `createUI` implementation for `Foldable` types.
+
+#### `gCreateUI`
+
+``` purescript
+gCreateUI :: forall a e. (Generic a) => UI e a -> UI e Renderable
+```
+
+A `createUI` implementation for types with a `Generic` instance.
+
 #### `flareCheck'`
 
 ``` purescript
