@@ -200,7 +200,13 @@ instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
   createUI = createUIShow
 
 instance interactiveArray :: (Show a) => Interactive (Array a) where
-  createUI = createUIFoldable
+  createUI = map (SetHTML <<< pretty)
+    where
+      pretty [] = H.table $ H.tr $ H.td $
+                    H.pre ! HA.className "flarecheck-warn" $ text "Empty Array"
+      pretty val = do
+        H.table $
+          H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
 
 instance interactiveList :: (Show a) => Interactive (List a) where
   createUI = createUIFoldable
