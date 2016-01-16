@@ -86,6 +86,14 @@ fieldset.flarecheck-test > legend {
     color: #E91E63;
 }
 
+.flarecheck-test .flarecheck-number {
+    color: #1339E8;
+}
+
+.flarecheck-test .flarecheck-boolean {
+    font-weight: bold;
+}
+
 .flarecheck-test td {
     border: 1px solid black;
 }
