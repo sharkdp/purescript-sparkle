@@ -22,7 +22,7 @@ import Control.Monad.Eff (Eff())
 
 import Data.Array as A
 import Data.Either (Either(..))
-import Data.Foldable (class Foldable, foldMap, for_, intercalate)
+import Data.Foldable (class Foldable, foldMap, for_, intercalate, foldr)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
 import Data.List (List(), toList)
@@ -70,7 +70,7 @@ instance flammableBoolean :: Flammable Boolean where
   spark = boolean "Boolean" false
 
 instance flammableTuple :: (Flammable a, Flammable b) => Flammable (Tuple a b) where
-  spark = Tuple <$> spark <*> spark
+  spark = fieldset "Tuple" $ Tuple <$> spark <*> spark
 
 instance flammableMaybe :: (Flammable a) => Flammable (Maybe a) where
   spark = fieldset "Maybe" $ toMaybe <$> boolean "Just" true <*> spark
@@ -149,9 +149,14 @@ showCreateUI = map (SetText <<< show)
 foldableCreateUI :: forall f a e. (Foldable f, Show a) => UI e (f a) -> UI e Renderable
 foldableCreateUI = map (SetHTML <<< pretty)
   where
-    pretty val = do
+    pretty val | null val =
+      H.table $ H.tr $ H.td $
+        H.pre ! HA.className "flarecheck-warn" $ text "Empty"
+               | otherwise = do
       H.table $
         H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
+
+    null = foldr (\_ _ -> false) true
 
 -- | A `createUI` implementation for types with a `Generic` instance.
 gCreateUI :: forall a e. (Generic a) => UI e a -> UI e Renderable
