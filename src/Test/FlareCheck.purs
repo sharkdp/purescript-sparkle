@@ -11,6 +11,8 @@ module Test.FlareCheck
   , foldableCreateUI
   , gCreateUI
   , Renderable()
+  , flareDoc'
+  , flareDoc
   , flareCheck'
   , flareCheck
   , module Flare
@@ -263,9 +265,10 @@ instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -
   createUI f = createUI (f <*> spark)
 
 -- | Append a new interactive test. The arguments are the ID of the parent
--- | element, the title for the test and the list of Flare components. Returns
--- | the element for the output of the test.
+-- | element, the title for the test, a documentation string and the list of
+-- | Flare components. Returns the element for the output of the test.
 foreign import appendTest :: forall e. ElementId
+                          -> String
                           -> String
                           -> Array Element
                           -> Eff (dom :: DOM | e) Element
@@ -295,16 +298,37 @@ render output (SetHTML markup) = setHTML output (H.render markup)
 
 -- | Run an interactive test. The ID specifies the parent element to which
 -- | the test will be appended and the label provides a title for the test.
+-- | The String argument is an optional documentation string.
+flareDoc' :: forall t e. (Interactive t)
+            => ElementId
+            -> Label
+            -> Maybe String
+            -> t
+            -> Eff (chan :: Chan, dom :: DOM | e) Unit
+flareDoc' parentId title doc x = do
+  let flare = createUI (pure x)
+  { components, signal } <- setupFlare flare
+  let docString = fromMaybe "" doc
+  output <- appendTest parentId title docString components
+  runSignal (render output <$> signal)
+
+-- | Run an interactive test. The label provides a title for the test. The
+-- | String argument is an optional documentation string.
+flareDoc :: forall t e. (Interactive t)
+            => Label
+            -> Maybe String
+            -> t
+            -> Eff (chan :: Chan, dom :: DOM | e) Unit
+flareDoc = flareDoc' "tests"
+
+-- | Run an interactive test. The ID specifies the parent element to which
+-- | the test will be appended and the label provides a title for the test.
 flareCheck' :: forall t e. (Interactive t)
             => ElementId
             -> Label
             -> t
             -> Eff (chan :: Chan, dom :: DOM | e) Unit
-flareCheck' parentId title x = do
-  let flare = createUI (pure x)
-  { components, signal } <- setupFlare flare
-  output <- appendTest parentId title components
-  runSignal (render output <$> signal)
+flareCheck' id label = flareDoc' id label Nothing
 
 -- | Run an interactive test. The label provides a title for the test.
 flareCheck :: forall t e. (Interactive t)

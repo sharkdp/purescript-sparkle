@@ -6,26 +6,34 @@
 
 exports.appendTest = function(parentId) {
   return function(title) {
-    return function(elements) {
-      return function() {
-        var parent = document.getElementById(parentId);
-        var fieldset = document.createElement("fieldset");
-        fieldset.className = "flarecheck-test";
-        var legend = document.createElement("legend");
-        legend.textContent = title;
-        fieldset.appendChild(legend);
+    return function(doc) {
+      return function(elements) {
+        return function() {
+          var parent = document.getElementById(parentId);
+          var fieldset = document.createElement("fieldset");
+          fieldset.className = "flarecheck-test";
+          var legend = document.createElement("legend");
+          legend.textContent = title;
+          fieldset.appendChild(legend);
 
-        for (var i = 0; i < elements.length; i++) {
-          fieldset.appendChild(elements[i]);
-        }
+          if (doc !== "") {
+            var docEl = document.createElement("p");
+            docEl.innerHTML = doc;
+            fieldset.appendChild(docEl);
+          }
 
-        var output = document.createElement("div");
-        output.className = "flarecheck-output";
-        fieldset.appendChild(output);
+          for (var i = 0; i < elements.length; i++) {
+            fieldset.appendChild(elements[i]);
+          }
 
-        parent.appendChild(fieldset);
+          var output = document.createElement("div");
+          output.className = "flarecheck-output";
+          fieldset.appendChild(output);
 
-        return output;
+          parent.appendChild(fieldset);
+
+          return output;
+        };
       };
     };
   };

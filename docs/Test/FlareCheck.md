@@ -106,6 +106,25 @@ gCreateUI :: forall a e. (Generic a) => UI e a -> UI e Renderable
 
 A `createUI` implementation for types with a `Generic` instance.
 
+#### `flareDoc'`
+
+``` purescript
+flareDoc' :: forall t e. (Interactive t) => ElementId -> Label -> Maybe String -> t -> Eff (chan :: Chan, dom :: DOM | e) Unit
+```
+
+Run an interactive test. The ID specifies the parent element to which
+the test will be appended and the label provides a title for the test.
+The String argument is an optional documentation string.
+
+#### `flareDoc`
+
+``` purescript
+flareDoc :: forall t e. (Interactive t) => Label -> Maybe String -> t -> Eff (chan :: Chan, dom :: DOM | e) Unit
+```
+
+Run an interactive test. The label provides a title for the test. The
+String argument is an optional documentation string.
+
 #### `flareCheck'`
 
 ``` purescript
