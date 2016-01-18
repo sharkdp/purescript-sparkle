@@ -38,7 +38,6 @@ fieldset.flarecheck-test > legend {
 }
 
 .flarecheck-test input {
-    font-size: 16px;
     padding: 3px;
     border-radius: 3px;
     border: 1px solid #888;
@@ -59,11 +58,6 @@ fieldset.flarecheck-test > legend {
     margin-bottom: 20px;
 }
 
-.flarecheck-test label,
-.flarecheck-test legend {
-    font-size: 16px;
-}
-
 .flarecheck-test label {
     width: 150px;
     display: inline-block;
@@ -82,28 +76,46 @@ fieldset.flarecheck-test > legend {
     background-color: #DEAFB4;
 }
 
-.flarecheck-test .flarecheck-string {
+.flarecheck-string {
     color: #E91E63;
 }
 
-.flarecheck-test .flarecheck-number {
+.flarecheck-number {
     color: #1339E8;
 }
 
-.flarecheck-test .flarecheck-boolean {
+.flarecheck-boolean {
     font-weight: bold;
 }
 
-.flarecheck-test td {
-    border: 1px solid black;
+.flarecheck-constructor {
+    font-weight: bold;
 }
 
-.flarecheck-test td > pre {
-    margin: 0;
-    padding: 5px;
+.flarecheck-record-field {
+    font-style: italic;
 }
 
-.flarecheck-test table {
-    margin-left: 2px;
-    margin-bottom: 10px;
+.flarecheck-tooltip {
+    cursor: default;
+}
+
+.flarecheck-tooltip:hover {
+    background-color: #f2e7a6;
+}
+
+.flarecheck-tooltip > .flarecheck-tooltip:hover {
+    background-color: #e9d563;
+}
+
+.flarecheck-tooltip > .flarecheck-tooltip > .flarecheck-tooltip:hover {
+    background-color: #dfc220;
+}
+
+.flarecheck-tooltip > .flarecheck-tooltip > .flarecheck-tooltip > .flarecheck-tooltip:hover {
+    background-color: #938015;
+}
+
+.flarecheck-tooltip > .flarecheck-tooltip > .flarecheck-tooltip > .flarecheck-tooltip > .flarecheck-tooltip:hover {
+    background-color: #62560e;
 }

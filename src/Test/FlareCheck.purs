@@ -6,10 +6,10 @@ module Test.FlareCheck
   , defaults
   , read
   , class Interactive
-  , createUI
-  , showCreateUI
-  , foldableCreateUI
-  , gCreateUI
+  , interactive
+  , interactiveGeneric
+  , interactiveShow
+  , interactiveFoldable
   , Renderable()
   , flareDoc'
   , flareDoc
@@ -23,13 +23,15 @@ import Prelude
 import Control.Monad.Eff (Eff())
 
 import Data.Array as A
+import Data.Array.Unsafe as AU
+import Data.Char (toCharCode)
 import Data.Either (Either(..))
-import Data.Foldable (class Foldable, foldMap, for_, intercalate, foldr)
+import Data.Foldable (class Foldable, foldMap, for_, intercalate, foldl)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
 import Data.List (List(), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.String (split, length, charAt)
+import Data.String (split, length, charAt, joinWith)
 import Data.Tuple (Tuple(..))
 
 import Global (readFloat, isFinite)
@@ -80,7 +82,10 @@ instance flammableMaybe :: (Flammable a) => Flammable (Maybe a) where
           toMaybe false _ = Nothing
 
 instance flammableEither :: (Flammable a, Flammable b) => Flammable (Either a b) where
-  spark = fieldset "Either" $ toEither <$> radioGroup "Select:" "Left" ["Right"] id <*> spark <*> spark
+  spark = fieldset "Either" $
+            toEither <$> radioGroup "Select:" "Left" ["Right"] id
+                     <*> spark
+                     <*> spark
     where toEither "Left" x _ = Left x
           toEither _      _ y = Right y
 
@@ -139,30 +144,28 @@ data Renderable
   | SetHTML H.Markup
 
 -- | A type class for interactive tests. Instances must provide a way to create
--- | a Flare UI which returns a `String` as output.
+-- | a Flare UI which returns a `Renderable` output.
 class Interactive t where
-  createUI :: forall e. UI e t -> UI e Renderable
+  interactive :: forall e. UI e t -> UI e Renderable
 
--- | A default `createUI` implementation for any `Show`able type.
-showCreateUI :: forall t e. (Show t) => UI e t -> UI e Renderable
-showCreateUI = map (SetText <<< show)
+-- | A default `interactive` implementation for any `Show`able type.
+interactiveShow :: forall t e. (Show t) => UI e t -> UI e Renderable
+interactiveShow = map (SetText <<< show)
 
--- | A default `createUI` implementation for `Foldable` types.
-foldableCreateUI :: forall f a e. (Foldable f, Show a) => UI e (f a) -> UI e Renderable
-foldableCreateUI = map (SetHTML <<< pretty)
+-- | A default `interactive` implementation for `Foldable` types.
+interactiveFoldable :: forall f a e. (Foldable f, Generic a)
+                    => UI e (f a)
+                    -> UI e Renderable
+interactiveFoldable = map (SetHTML <<< H.pre <<< markup)
   where
-    pretty val | null val =
-      H.table $ H.tr $ H.td $
-        H.pre ! HA.className "flarecheck-warn" $ text "Empty"
-               | otherwise = do
-      H.table $
-        H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
+    markup val = do
+      text "fromFoldable "
+      prettyPrint (fromFoldable val)
 
-    null = foldr (\_ _ -> false) true
-
--- | A `createUI` implementation for types with a `Generic` instance.
-gCreateUI :: forall a e. (Generic a) => UI e a -> UI e Renderable
-gCreateUI ui = createUI (toSpine <$> ui)
+    -- TODO: fromFoldable should appear in Data.Array soon
+    -- Inefficient version for the meantime:
+    fromFoldable :: forall f a. Foldable f => f a -> Array a
+    fromFoldable = foldl A.snoc []
 
 -- | Takes a CSS classname and a `String` and returns a 'syntax highlighted'
 -- | version of the `String`.
@@ -170,99 +173,128 @@ highlight :: String -> String -> H.Markup
 highlight syntaxClass value =
   H.span ! HA.className ("flarecheck-" <> syntaxClass) $ text value
 
+-- | Add a tooltip to an element.
+tooltip :: String -> H.Markup -> H.Markup
+tooltip tip = H.span ! HA.className "flarecheck-tooltip" ! HA.title tip
+
+-- | Extract the constructor name from a string like `Data.Tuple.Tuple`.
+constructor :: String -> H.Markup
+constructor long = tooltip modString $ highlight "constructor" name
+  where
+    parts = split "." long
+    name = AU.last parts
+    modString =
+      if A.length parts == 1
+        then "Data constructor form unknown module"
+        else long
+
+-- | Pretty print a `GenericSpine`. This is an adapted version of
+-- | `Data.Generic.genericShowPrec`.
+prettyPrec :: Int -> GenericSpine -> H.Markup
+prettyPrec d (SProd s arr) = do
+  if (A.null arr)
+    then constructor s
+    else do
+      showParen (d > 10) $ do
+        constructor s
+        for_ arr \f -> do
+          text " "
+          prettyPrec 11 (f unit)
+  where showParen false x = x
+        showParen true  x = do
+          text "("
+          x
+          text ")"
+
+prettyPrec d (SRecord arr) = do
+  text "{ "
+  intercalate (text ", ") (map recEntry arr)
+  text " }"
+    where
+      recEntry x = do
+        highlight "record-field" x.recLabel
+        text ": "
+        prettyPrec 0 (x.recValue unit)
+
+prettyPrec d (SBoolean x)  = tooltip "Boolean" $ highlight "boolean" (show x)
+prettyPrec d (SNumber x)   = tooltip "Number"  $ highlight "number" (show x)
+prettyPrec d (SInt x)      = tooltip "Int"     $ highlight "number" (show x)
+prettyPrec d (SString x)   = tooltip tip       $ highlight "string" (show x)
+  where tip = "String of length " <> show (length x)
+prettyPrec d (SChar x)     = tooltip tip       $ highlight "string" (show x)
+  where tip = "Char (with char code " <> show (toCharCode x) <> ")"
+prettyPrec d (SArray arr)  = tooltip tip $ do
+  text "["
+  intercalate (text ", ") (map (\x -> prettyPrec 0 (x unit)) arr)
+  text "]"
+    where tip = "Array of length " <> show (A.length arr)
+
+-- | Pretty print a `GenericSpine`.
+pretty :: GenericSpine -> H.Markup
+pretty = prettyPrec 0
+
+-- | Pretty print a value which has a `Generic` type.
+prettyPrint :: forall a. Generic a => a -> H.Markup
+prettyPrint = toSpine >>> pretty
+
+-- | A default `interactive` implementation for types with a `Generic` instance.
+interactiveGeneric :: forall a e. (Generic a) => UI e a -> UI e Renderable
+interactiveGeneric ui = ((SetHTML <<< H.pre <<< prettyPrint) <$> ui)
+
 instance interactiveNumber :: Interactive Number where
-  createUI = map (SetHTML <<< H.pre <<< highlight "number" <<< show)
+  interactive = interactiveGeneric
 
 instance interactiveInt :: Interactive Int where
-  createUI = map (SetHTML <<< H.pre <<< highlight "number" <<< show)
+  interactive = interactiveGeneric
 
 instance interactiveString :: Interactive String where
-  createUI = map (SetHTML <<< pretty)
-    where
-      pretty val = do H.pre $ highlight "string" (show val)
-                      text ("String length: " <> show (length val))
+  interactive = interactiveGeneric
 
 instance interactiveChar :: Interactive Char where
-  createUI = map (SetHTML <<< H.pre <<< highlight "string" <<< show)
+  interactive = interactiveGeneric
 
 instance interactiveBoolean :: Interactive Boolean where
-  createUI = map (SetHTML <<< pretty)
+  interactive = map (SetHTML <<< markup)
     where
-      pretty true =  H.pre ! HA.className "flarecheck-okay" $
-                       highlight "boolean" "true"
-      pretty false = H.pre ! HA.className "flarecheck-warn" $
-                       highlight "boolean" "false"
+      classN true  = "flarecheck-okay"
+      classN false = "flarecheck-warn"
+      markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
 instance interactiveOrdering :: Interactive Ordering where
-  createUI = showCreateUI
+  interactive = interactiveShow
 
 instance genericSpineInteractive :: Interactive GenericSpine where
-  createUI = map (SetHTML <<< H.pre <<< pretty)
+  interactive = map (SetHTML <<< H.pre <<< pretty)
+
+instance interactiveMaybe :: Generic a => Interactive (Maybe a) where
+  interactive = map (SetHTML <<< markup)
     where
-      pretty :: GenericSpine -> H.Markup
-      pretty (SProd s arr) =
-        if A.null arr
-        then text s
-        else do
-          text s
-          for_ arr \f -> do
-            text " "
-            pretty (f unit)
-      pretty (SRecord arr) = do
-        text "{"
-        intercalate (text ", ") (map recEntry arr)
-        text "}"
-          where
-            recEntry x = do
-              text x.recLabel
-              text ": "
-              pretty (x.recValue unit)
-      pretty (SBoolean x)  = highlight "boolean" (show x)
-      pretty (SInt x)      = highlight "number" (show x)
-      pretty (SNumber x)   = highlight "number" (show x)
-      pretty (SString x)   = highlight "string" (show x)
-      pretty (SChar x)     = highlight "string" (show x)
-      pretty (SArray arr)  = do
-        text "["
-        intercalate (text ", ") (map (\x -> pretty (x unit)) arr)
-        text "]"
+      classN Nothing  = "flarecheck-warn"
+      classN _        = ""
+      markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
-instance interactiveMaybe :: (Show a) => Interactive (Maybe a) where
-  createUI = map (SetHTML <<< pretty)
+instance interactiveEither :: (Generic a, Generic b) => Interactive (Either a b) where
+  interactive = map (SetHTML <<< markup)
     where
-      pretty Nothing  = H.pre ! HA.className "flarecheck-warn" $
-                          H.b (text "Nothing")
-      pretty (Just v) = H.pre ! HA.className "flarecheck-okay" $ do
-                          H.b (text "Just")
-                          text (" (" <> show v <> ")")
+      classN (Left _) = "flarecheck-warn"
+      classN _        = ""
+      markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
-instance interactiveEither :: (Show a, Show b) => Interactive (Either a b) where
-  createUI = map (SetHTML <<< pretty)
+instance interactiveTuple :: (Generic a, Generic b) => Interactive (Tuple a b) where
+  interactive = interactiveGeneric
+
+instance interactiveArray :: Generic a => Interactive (Array a) where
+  interactive = map (SetHTML <<< markup)
     where
-      pretty (Left v)  = H.pre ! HA.className "flarecheck-warn" $ do
-                           H.b (text "Left")
-                           text (" (" <> show v <> ")")
-      pretty (Right v) = H.pre ! HA.className "flarecheck-okay" $ do
-                           H.b (text "Right")
-                           text (" (" <> show v <> ")")
+      classN [] = "flarecheck-warn"
+      classN _  = ""
+      markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
-instance interactiveTuple :: (Show a, Show b) => Interactive (Tuple a b) where
-  createUI = showCreateUI
-
-instance interactiveArray :: (Show a) => Interactive (Array a) where
-  createUI = map (SetHTML <<< pretty)
-    where
-      pretty [] = H.table $ H.tr $ H.td $
-                    H.pre ! HA.className "flarecheck-warn" $ text "Empty Array"
-      pretty val = do
-        H.table $
-          H.tr $ foldMap (H.td <<< H.pre <<< text <<< show) val
-
-instance interactiveList :: (Show a) => Interactive (List a) where
-  createUI = foldableCreateUI
+instance interactiveList :: Generic a => Interactive (List a) where
+  interactive = interactiveFoldable
 
 instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -> b) where
-  createUI f = createUI (f <*> spark)
+  interactive f = interactive (f <*> spark)
 
 -- | Append a new interactive test. The arguments are the ID of the parent
 -- | element, the title for the test, a documentation string and the list of
@@ -306,7 +338,7 @@ flareDoc' :: forall t e. (Interactive t)
             -> t
             -> Eff (chan :: Chan, dom :: DOM | e) Unit
 flareDoc' parentId title doc x = do
-  let flare = createUI (pure x)
+  let flare = interactive (pure x)
   { components, signal } <- setupFlare flare
   let docString = fromMaybe "" doc
   output <- appendTest parentId title docString components
