@@ -50,6 +50,8 @@ Read Boolean
 
 ``` purescript
 data Renderable
+  = SetText String
+  | SetHTML Markup
 ```
 
 A data type that describes possible output actions and values for an

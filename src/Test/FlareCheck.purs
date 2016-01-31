@@ -10,7 +10,7 @@ module Test.FlareCheck
   , interactiveGeneric
   , interactiveShow
   , interactiveFoldable
-  , Renderable()
+  , Renderable(..)
   , flareDoc'
   , flareDoc
   , flareCheck'
