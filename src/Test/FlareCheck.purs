@@ -164,7 +164,7 @@ interactiveFoldable = map (SetHTML <<< H.pre <<< markup)
 
     -- TODO: fromFoldable should appear in Data.Array soon
     -- Inefficient version for the meantime:
-    fromFoldable :: forall f a. Foldable f => f a -> Array a
+    fromFoldable :: forall g b. Foldable g => g b -> Array b
     fromFoldable = foldl A.snoc []
 
 -- | Takes a CSS classname and a `String` and returns a 'syntax highlighted'
