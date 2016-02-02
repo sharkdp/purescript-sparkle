@@ -232,17 +232,14 @@ var PS = { };
       return dict.compose;
   };
   var functorFn = new Functor(compose(semigroupoidFn));
-  var $greater$greater$greater = function (dictSemigroupoid) {
-      return flip(compose(dictSemigroupoid));
-  };
   var compare = function (dict) {
       return dict.compare;
   };
   var $less = function (dictOrd) {
       return function (a1) {
           return function (a2) {
-              var $79 = compare(dictOrd)(a1)(a2);
-              if ($79 instanceof LT) {
+              var $80 = compare(dictOrd)(a1)(a2);
+              if ($80 instanceof LT) {
                   return true;
               };
               return false;
@@ -252,8 +249,8 @@ var PS = { };
   var $less$eq = function (dictOrd) {
       return function (a1) {
           return function (a2) {
-              var $80 = compare(dictOrd)(a1)(a2);
-              if ($80 instanceof GT) {
+              var $81 = compare(dictOrd)(a1)(a2);
+              if ($81 instanceof GT) {
                   return false;
               };
               return true;
@@ -358,7 +355,6 @@ var PS = { };
   exports["<$>"] = $less$dollar$greater;
   exports["map"] = map;
   exports["id"] = id;
-  exports[">>>"] = $greater$greater$greater;
   exports["compose"] = compose;
   exports["const"] = $$const;
   exports["flip"] = flip;
@@ -573,24 +569,24 @@ var PS = { };
       };
       return Just;
   })();
-  var maybe = function (b) {
-      return function (f) {
-          return function (v) {
-              if (v instanceof Nothing) {
-                  return b;
+  var maybe = function (v) {
+      return function (v1) {
+          return function (v2) {
+              if (v2 instanceof Nothing) {
+                  return v;
               };
-              if (v instanceof Just) {
-                  return f(v.value0);
+              if (v2 instanceof Just) {
+                  return v1(v2.value0);
               };
-              throw new Error("Failed pattern match at Data.Maybe line 26, column 1 - line 27, column 1: " + [ b.constructor.name, f.constructor.name, v.constructor.name ]);
+              throw new Error("Failed pattern match at Data.Maybe line 26, column 1 - line 27, column 1: " + [ v.constructor.name, v1.constructor.name, v2.constructor.name ]);
           };
       };
   };                                                   
   var isJust = maybe(false)(Prelude["const"](true));
-  var functorMaybe = new Prelude.Functor(function (fn) {
-      return function (v) {
-          if (v instanceof Just) {
-              return new Just(fn(v.value0));
+  var functorMaybe = new Prelude.Functor(function (v) {
+      return function (v1) {
+          if (v1 instanceof Just) {
+              return new Just(v(v1.value0));
           };
           return Nothing.value;
       };
@@ -601,14 +597,14 @@ var PS = { };
   var applyMaybe = new Prelude.Apply(function () {
       return functorMaybe;
   }, function (v) {
-      return function (x) {
+      return function (v1) {
           if (v instanceof Just) {
-              return Prelude["<$>"](functorMaybe)(v.value0)(x);
+              return Prelude["<$>"](functorMaybe)(v.value0)(v1);
           };
           if (v instanceof Nothing) {
               return Nothing.value;
           };
-          throw new Error("Failed pattern match at Data.Maybe line 121, column 1 - line 145, column 1: " + [ v.constructor.name, x.constructor.name ]);
+          throw new Error("Failed pattern match at Data.Maybe line 121, column 1 - line 145, column 1: " + [ v.constructor.name, v1.constructor.name ]);
       };
   });
   var applicativeMaybe = new Prelude.Applicative(function () {
@@ -651,8 +647,8 @@ var PS = { };
   var traverse_ = function (dictApplicative) {
       return function (dictFoldable) {
           return function (f) {
-              return foldr(dictFoldable)(function ($159) {
-                  return Control_Apply["*>"](dictApplicative["__superclass_Prelude.Apply_0"]())(f($159));
+              return foldr(dictFoldable)(function ($161) {
+                  return Control_Apply["*>"](dictApplicative["__superclass_Prelude.Apply_0"]())(f($161));
               })(Prelude.pure(dictApplicative)(Prelude.unit));
           };
       };
@@ -703,28 +699,28 @@ var PS = { };
               throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ f.constructor.name, v.constructor.name ]);
           };
       };
-  }, function (f) {
+  }, function (v) {
       return function (z) {
-          return function (v) {
-              if (v instanceof Data_Maybe.Nothing) {
+          return function (v1) {
+              if (v1 instanceof Data_Maybe.Nothing) {
                   return z;
               };
-              if (v instanceof Data_Maybe.Just) {
-                  return f(z)(v.value0);
+              if (v1 instanceof Data_Maybe.Just) {
+                  return v(z)(v1.value0);
               };
-              throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ f.constructor.name, z.constructor.name, v.constructor.name ]);
+              throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ v.constructor.name, z.constructor.name, v1.constructor.name ]);
           };
       };
-  }, function (f) {
+  }, function (v) {
       return function (z) {
-          return function (v) {
-              if (v instanceof Data_Maybe.Nothing) {
+          return function (v1) {
+              if (v1 instanceof Data_Maybe.Nothing) {
                   return z;
               };
-              if (v instanceof Data_Maybe.Just) {
-                  return f(v.value0)(z);
+              if (v1 instanceof Data_Maybe.Just) {
+                  return v(v1.value0)(z);
               };
-              throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ f.constructor.name, z.constructor.name, v.constructor.name ]);
+              throw new Error("Failed pattern match at Data.Foldable line 103, column 1 - line 111, column 1: " + [ v.constructor.name, z.constructor.name, v1.constructor.name ]);
           };
       };
   });
@@ -941,8 +937,8 @@ var PS = { };
   };
   var concatMap = Prelude.flip(Prelude.bind(Prelude.bindArray));
   var mapMaybe = function (f) {
-      return concatMap(function ($67) {
-          return Data_Maybe.maybe([  ])(singleton)(f($67));
+      return concatMap(function ($69) {
+          return Data_Maybe.maybe([  ])(singleton)(f($69));
       });
   };
   var catMaybes = mapMaybe(Prelude.id(Prelude.categoryFn));
@@ -1137,7 +1133,8 @@ var PS = { };
   var Data_Foldable = PS["Data.Foldable"];
   var Data_Array = PS["Data.Array"];
   var Data_String = PS["Data.String"];
-  var Type_Proxy = PS["Type.Proxy"];     
+  var Type_Proxy = PS["Type.Proxy"];
+  var Data_Monoid = PS["Data.Monoid"];     
   var SProd = (function () {
       function SProd(value0, value1) {
           this.value0 = value0;
@@ -1346,10 +1343,10 @@ var PS = { };
   var genericArray = function (dictGeneric) {
       return new Generic(function (v) {
           if (v instanceof SArray) {
-              return Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Maybe.applicativeMaybe)(function ($182) {
+              return Data_Traversable.traverse(Data_Traversable.traversableArray)(Data_Maybe.applicativeMaybe)(function ($195) {
                   return fromSpine(dictGeneric)((function (v1) {
                       return v1(Prelude.unit);
-                  })($182));
+                  })($195));
               })(v.value0);
           };
           return Data_Maybe.Nothing.value;
@@ -1407,7 +1404,7 @@ var PS = { };
                       return toSpine(dictGeneric1)(v.value0);
                   } ]);
               };
-              throw new Error("Failed pattern match at Data.Generic line 153, column 1 - line 174, column 1: " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Data.Generic line 214, column 1 - line 235, column 1: " + [ v.constructor.name ]);
           });
       };
   };
@@ -1442,7 +1439,7 @@ var PS = { };
           if (v instanceof Data_Maybe.Nothing) {
               return new SProd("Data.Maybe.Nothing", [  ]);
           };
-          throw new Error("Failed pattern match at Data.Generic line 136, column 1 - line 153, column 1: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Data.Generic line 197, column 1 - line 214, column 1: " + [ v.constructor.name ]);
       });
   };
   var genericTuple = function (dictGeneric) {
@@ -1574,9 +1571,6 @@ var PS = { };
       return Cons;
   })();
   var $colon = Cons.create;
-  var toList = function (dictFoldable) {
-      return Data_Foldable.foldr(dictFoldable)(Cons.create)(Nil.value);
-  };
   var semigroupList = new Prelude.Semigroup(function (v) {
       return function (ys) {
           if (v instanceof Nil) {
@@ -1605,7 +1599,7 @@ var PS = { };
                       v = __tco_v;
                       continue tco;
                   };
-                  throw new Error("Failed pattern match at Data.List line 365, column 1 - line 366, column 1: " + [ acc.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match at Data.List line 368, column 1 - line 369, column 1: " + [ acc.constructor.name, v.constructor.name ]);
               };
           };
       };
@@ -1628,72 +1622,78 @@ var PS = { };
                           acc = __tco_acc;
                           continue tco;
                       };
-                      throw new Error("Failed pattern match at Data.List line 718, column 1 - line 725, column 1: " + [ v.constructor.name, acc.constructor.name ]);
+                      throw new Error("Failed pattern match at Data.List line 731, column 1 - line 738, column 1: " + [ v.constructor.name, acc.constructor.name ]);
                   };
               };
           };
           return reverse(go(lst)(Nil.value));
       };
   });
+  var fromFoldable = function (dictFoldable) {
+      return Data_Foldable.foldr(dictFoldable)(Cons.create)(Nil.value);
+  };
+  var toList = function (dictFoldable) {
+      return fromFoldable(dictFoldable);
+  };
   var foldableList = new Data_Foldable.Foldable(function (dictMonoid) {
       return function (f) {
           return Data_Foldable.foldl(foldableList)(function (acc) {
-              return function ($346) {
-                  return Prelude.append(dictMonoid["__superclass_Prelude.Semigroup_0"]())(acc)(f($346));
+              return function ($365) {
+                  return Prelude.append(dictMonoid["__superclass_Prelude.Semigroup_0"]())(acc)(f($365));
               };
           })(Data_Monoid.mempty(dictMonoid));
       };
   }, (function () {
-      var go = function (__copy_o) {
+      var go = function (__copy_v) {
           return function (__copy_b) {
-              return function (__copy_v) {
-                  var o = __copy_o;
-                  var b = __copy_b;
+              return function (__copy_v1) {
                   var v = __copy_v;
+                  var b = __copy_b;
+                  var v1 = __copy_v1;
                   tco: while (true) {
                       var b1 = b;
-                      if (v instanceof Nil) {
+                      if (v1 instanceof Nil) {
                           return b1;
                       };
-                      if (v instanceof Cons) {
-                          var __tco_o = o;
-                          var __tco_b = o(b)(v.value0);
-                          var __tco_v = v.value1;
-                          o = __tco_o;
-                          b = __tco_b;
+                      if (v1 instanceof Cons) {
+                          var __tco_v = v;
+                          var __tco_b = v(b)(v1.value0);
+                          var __tco_v1 = v1.value1;
                           v = __tco_v;
+                          b = __tco_b;
+                          v1 = __tco_v1;
                           continue tco;
                       };
-                      throw new Error("Failed pattern match: " + [ o.constructor.name, b.constructor.name, v.constructor.name ]);
+                      throw new Error("Failed pattern match: " + [ v.constructor.name, b.constructor.name, v1.constructor.name ]);
                   };
               };
           };
       };
       return go;
-  })(), function (o) {
+  })(), function (v) {
       return function (b) {
-          return function (v) {
-              if (v instanceof Nil) {
+          return function (v1) {
+              if (v1 instanceof Nil) {
                   return b;
               };
-              if (v instanceof Cons) {
-                  return o(v.value0)(Data_Foldable.foldr(foldableList)(o)(b)(v.value1));
+              if (v1 instanceof Cons) {
+                  return v(v1.value0)(Data_Foldable.foldr(foldableList)(v)(b)(v1.value1));
               };
-              throw new Error("Failed pattern match: " + [ o.constructor.name, b.constructor.name, v.constructor.name ]);
+              throw new Error("Failed pattern match: " + [ v.constructor.name, b.constructor.name, v1.constructor.name ]);
           };
       };
   });                                                      
   var applyList = new Prelude.Apply(function () {
       return functorList;
   }, function (v) {
-      return function (xs) {
+      return function (v1) {
           if (v instanceof Nil) {
               return Nil.value;
           };
           if (v instanceof Cons) {
-              return Prelude["<>"](semigroupList)(Prelude["<$>"](functorList)(v.value0)(xs))(Prelude["<*>"](applyList)(v.value1)(xs));
+              return Prelude["<>"](semigroupList)(Prelude["<$>"](functorList)(v.value0)(v1))(Prelude["<*>"](applyList)(v.value1)(v1));
           };
-          throw new Error("Failed pattern match: " + [ v.constructor.name, xs.constructor.name ]);
+          throw new Error("Failed pattern match: " + [ v.constructor.name, v1.constructor.name ]);
       };
   });
   var applicativeList = new Prelude.Applicative(function () {
@@ -1703,9 +1703,10 @@ var PS = { };
   });
   exports["Nil"] = Nil;
   exports["Cons"] = Cons;
+  exports["toList"] = toList;
   exports["reverse"] = reverse;
   exports[":"] = $colon;
-  exports["toList"] = toList;
+  exports["fromFoldable"] = fromFoldable;
   exports["semigroupList"] = semigroupList;
   exports["functorList"] = functorList;
   exports["foldableList"] = foldableList;
@@ -1897,73 +1898,73 @@ var PS = { };
       return KickUp;
   })();
   var lookup = function (__copy_dictOrd) {
-      return function (__copy_k) {
-          return function (__copy_v) {
+      return function (__copy_v) {
+          return function (__copy_v1) {
               var dictOrd = __copy_dictOrd;
-              var k = __copy_k;
               var v = __copy_v;
+              var v1 = __copy_v1;
               tco: while (true) {
-                  if (v instanceof Leaf) {
+                  if (v1 instanceof Leaf) {
                       return Data_Maybe.Nothing.value;
                   };
-                  var k1 = k;
-                  if (v instanceof Two && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k1)(v.value1)) {
-                      return new Data_Maybe.Just(v.value2);
+                  var k = v;
+                  if (v1 instanceof Two && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k)(v1.value1)) {
+                      return new Data_Maybe.Just(v1.value2);
                   };
-                  var k1 = k;
-                  if (v instanceof Two && Prelude["<"](dictOrd)(k1)(v.value1)) {
+                  var k = v;
+                  if (v1 instanceof Two && Prelude["<"](dictOrd)(k)(v1.value1)) {
                       var __tco_dictOrd = dictOrd;
-                      var __tco_v = v.value0;
+                      var __tco_v1 = v1.value0;
                       dictOrd = __tco_dictOrd;
-                      k = k1;
-                      v = __tco_v;
+                      v = k;
+                      v1 = __tco_v1;
                       continue tco;
                   };
-                  var k1 = k;
-                  if (v instanceof Two) {
+                  var k = v;
+                  if (v1 instanceof Two) {
                       var __tco_dictOrd = dictOrd;
-                      var __tco_v = v.value3;
+                      var __tco_v1 = v1.value3;
                       dictOrd = __tco_dictOrd;
-                      k = k1;
-                      v = __tco_v;
+                      v = k;
+                      v1 = __tco_v1;
                       continue tco;
                   };
-                  var k1 = k;
-                  if (v instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k1)(v.value1)) {
-                      return new Data_Maybe.Just(v.value2);
+                  var k = v;
+                  if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k)(v1.value1)) {
+                      return new Data_Maybe.Just(v1.value2);
                   };
-                  var k1 = k;
-                  if (v instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k1)(v.value4)) {
-                      return new Data_Maybe.Just(v.value5);
+                  var k = v;
+                  if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k)(v1.value4)) {
+                      return new Data_Maybe.Just(v1.value5);
                   };
-                  var k1 = k;
-                  if (v instanceof Three && Prelude["<"](dictOrd)(k1)(v.value1)) {
+                  var k = v;
+                  if (v1 instanceof Three && Prelude["<"](dictOrd)(k)(v1.value1)) {
                       var __tco_dictOrd = dictOrd;
-                      var __tco_v = v.value0;
+                      var __tco_v1 = v1.value0;
                       dictOrd = __tco_dictOrd;
-                      k = k1;
-                      v = __tco_v;
+                      v = k;
+                      v1 = __tco_v1;
                       continue tco;
                   };
-                  var k1 = k;
-                  if (v instanceof Three && (Prelude["<"](dictOrd)(v.value1)(k1) && Prelude["<="](dictOrd)(k1)(v.value4))) {
+                  var k = v;
+                  if (v1 instanceof Three && (Prelude["<"](dictOrd)(v1.value1)(k) && Prelude["<="](dictOrd)(k)(v1.value4))) {
                       var __tco_dictOrd = dictOrd;
-                      var __tco_v = v.value3;
+                      var __tco_v1 = v1.value3;
                       dictOrd = __tco_dictOrd;
-                      k = k1;
-                      v = __tco_v;
+                      v = k;
+                      v1 = __tco_v1;
                       continue tco;
                   };
-                  if (v instanceof Three) {
+                  if (v1 instanceof Three) {
                       var __tco_dictOrd = dictOrd;
-                      var __tco_k = k;
-                      var __tco_v = v.value6;
+                      var __tco_v = v;
+                      var __tco_v1 = v1.value6;
                       dictOrd = __tco_dictOrd;
-                      k = __tco_k;
                       v = __tco_v;
+                      v1 = __tco_v1;
                       continue tco;
                   };
-                  throw new Error("Failed pattern match: " + [ k.constructor.name, v.constructor.name ]);
+                  throw new Error("Failed pattern match: " + [ v.constructor.name, v1.constructor.name ]);
               };
           };
       };
@@ -2670,10 +2671,10 @@ var PS = { };
   var setupFlare = function (v) {
       return function __do() {
           var v1 = v();
-          return Prelude["return"](Control_Monad_Eff.applicativeEff)({
+          return {
               components: v1.value0, 
               signal: v1.value1
-          })();
+          };
       };
   };
   var functorFlare = new Prelude.Functor(function (f) {
@@ -2690,7 +2691,7 @@ var PS = { };
       return function (v) {
           return UI(function __do() {
               var v1 = v();
-              return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ $foreign.toFieldset(label)(v1.value0) ], v1.value1))();
+              return new Flare([ $foreign.toFieldset(label)(v1.value0) ], v1.value1);
           });
       };
   };
@@ -3262,13 +3263,9 @@ var PS = { };
                       var flare = interactive(dictInteractive)(Prelude.pure(Flare.applicativeUI)(x));
                       return function __do() {
                           var v = Flare.setupFlare(flare)();
-                          return (function () {
-                              var docString = Data_Maybe.fromMaybe("")(doc);
-                              return function __do() {
-                                  var v1 = $foreign.appendTest(parentId)(title)(docString)(v.components)();
-                                  return Signal.runSignal(Prelude["<$>"](Signal.functorSignal)(render(v1))(v.signal))();
-                              };
-                          })()();
+                          var docString = Data_Maybe.fromMaybe("")(doc);
+                          var v1 = $foreign.appendTest(parentId)(title)(docString)(v.components)();
+                          return Signal.runSignal(Prelude["<$>"](Signal.functorSignal)(render(v1))(v.signal))();
                       };
                   };
               };
@@ -3292,14 +3289,14 @@ var PS = { };
   var flammableMaybe = function (dictFlammable) {
       return new Flammable((function () {
           var toMaybe = function (v) {
-              return function (x) {
+              return function (v1) {
                   if (v) {
-                      return new Data_Maybe.Just(x);
+                      return new Data_Maybe.Just(v1);
                   };
                   if (!v) {
                       return Data_Maybe.Nothing.value;
                   };
-                  throw new Error("Failed pattern match at Test.FlareCheck line 81, column 11 - line 82, column 11: " + [ v.constructor.name, x.constructor.name ]);
+                  throw new Error("Failed pattern match at Test.FlareCheck line 81, column 11 - line 82, column 11: " + [ v.constructor.name, v1.constructor.name ]);
               };
           };
           return Flare.fieldset("Maybe")(Prelude["<*>"](Flare.applyUI)(Prelude["<$>"](Flare.functorUI)(toMaybe)(Flare["boolean"]("Just")(true)))(spark(dictFlammable)));
@@ -3310,12 +3307,12 @@ var PS = { };
       return function (dictFlammable1) {
           return new Flammable((function () {
               var toEither = function (v) {
-                  return function (x) {
-                      return function (y) {
+                  return function (v1) {
+                      return function (v2) {
                           if (v === "Left") {
-                              return new Data_Either.Left(x);
+                              return new Data_Either.Left(v1);
                           };
-                          return new Data_Either.Right(y);
+                          return new Data_Either.Right(v2);
                       };
                   };
               };
@@ -3330,8 +3327,8 @@ var PS = { };
   };
   var csvUI = function (dictRead) {
       var defaults$prime = defaults(dictRead)((Type_Proxy["Proxy"]).value);
-      return Prelude["<$>"](Flare.functorUI)(function ($85) {
-          return Data_Array.catMaybes(Prelude.map(Prelude.functorArray)(read(dictRead))(Data_String.split(",")($85)));
+      return Prelude["<$>"](Flare.functorUI)(function ($88) {
+          return Data_Array.catMaybes(Prelude.map(Prelude.functorArray)(read(dictRead))(Data_String.split(",")($88)));
       })(Flare.string("CSV:")(defaults$prime));
   };
   var flammableArrayRead = function (dictRead) {
@@ -3350,14 +3347,14 @@ var PS = { };
       var parts = Data_String.split(".")($$long);
       var name = Data_Array_Unsafe.last(parts);
       var modString = (function () {
-          var $64 = Data_Array.length(parts) === 1;
-          if ($64) {
+          var $67 = Data_Array.length(parts) === 1;
+          if ($67) {
               return "Data constructor form unknown module";
           };
-          if (!$64) {
+          if (!$67) {
               return $$long;
           };
-          throw new Error("Failed pattern match at Test.FlareCheck line 181, column 1 - line 182, column 1: " + [ $64.constructor.name ]);
+          throw new Error("Failed pattern match at Test.FlareCheck line 181, column 1 - line 182, column 1: " + [ $67.constructor.name ]);
       })();
       return tooltip(modString)(highlight("constructor")(name));
   };
@@ -3379,11 +3376,11 @@ var PS = { };
                       throw new Error("Failed pattern match at Test.FlareCheck line 203, column 9 - line 204, column 9: " + [ v1.constructor.name, x.constructor.name ]);
                   };
               };
-              var $69 = Data_Array["null"](v.value1);
-              if ($69) {
+              var $72 = Data_Array["null"](v.value1);
+              if ($72) {
                   return constructor(v.value0);
               };
-              if (!$69) {
+              if (!$72) {
                   return showParen(d > 10)(Prelude.bind(Text_Smolder_Markup.bindMarkupM)(constructor(v.value0))(function () {
                       return Data_Foldable.for_(Text_Smolder_Markup.applicativeMarkupM)(Data_Foldable.foldableArray)(v.value1)(function (f) {
                           return Prelude.bind(Text_Smolder_Markup.bindMarkupM)(text(" "))(function () {
@@ -3392,7 +3389,7 @@ var PS = { };
                       });
                   }));
               };
-              throw new Error("Failed pattern match: " + [ $69.constructor.name ]);
+              throw new Error("Failed pattern match: " + [ $72.constructor.name ]);
           };
           if (v instanceof Data_Generic.SRecord) {
               var recEntry = function (x) {
@@ -3440,7 +3437,9 @@ var PS = { };
   };
   var pretty = prettyPrec(0);
   var prettyPrint = function (dictGeneric) {
-      return Prelude[">>>"](Prelude.semigroupoidFn)(Data_Generic.toSpine(dictGeneric))(pretty);
+      return function ($90) {
+          return pretty(Data_Generic.toSpine(dictGeneric)($90));
+      };
   };
   var interactiveArray = function (dictGeneric) {
       return new Interactive((function () {
@@ -3453,8 +3452,8 @@ var PS = { };
           var markup = function (v) {
               return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericArray(dictGeneric))(v));
           };
-          return Prelude.map(Flare.functorUI)(function ($87) {
-              return SetHTML.create(markup($87));
+          return Prelude.map(Flare.functorUI)(function ($91) {
+              return SetHTML.create(markup($91));
           });
       })());
   };
@@ -3471,8 +3470,8 @@ var PS = { };
       var markup = function (v) {
           return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericBool)(v));
       };
-      return Prelude.map(Flare.functorUI)(function ($88) {
-          return SetHTML.create(markup($88));
+      return Prelude.map(Flare.functorUI)(function ($92) {
+          return SetHTML.create(markup($92));
       });
   })());
   var interactiveEither = function (dictGeneric) {
@@ -3487,8 +3486,8 @@ var PS = { };
               var markup = function (v) {
                   return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericEither(dictGeneric)(dictGeneric1))(v));
               };
-              return Prelude.map(Flare.functorUI)(function ($89) {
-                  return SetHTML.create(markup($89));
+              return Prelude.map(Flare.functorUI)(function ($93) {
+                  return SetHTML.create(markup($93));
               });
           })());
       };
@@ -3503,8 +3502,8 @@ var PS = { };
                   return prettyPrint(Data_Generic.genericArray(dictGeneric))(fromFoldable(dictFoldable)(val));
               });
           };
-          return Prelude.map(Flare.functorUI)(function ($90) {
-              return SetHTML.create(Text_Smolder_HTML.pre(markup($90)));
+          return Prelude.map(Flare.functorUI)(function ($94) {
+              return SetHTML.create(Text_Smolder_HTML.pre(markup($94)));
           });
       };
   };
@@ -3513,8 +3512,8 @@ var PS = { };
   };
   var interactiveGeneric = function (dictGeneric) {
       return function (ui) {
-          return Prelude["<$>"](Flare.functorUI)(function ($91) {
-              return SetHTML.create(Text_Smolder_HTML.pre(prettyPrint(dictGeneric)($91)));
+          return Prelude["<$>"](Flare.functorUI)(function ($95) {
+              return SetHTML.create(Text_Smolder_HTML.pre(prettyPrint(dictGeneric)($95)));
           })(ui);
       };
   };
@@ -3538,11 +3537,13 @@ var PS = { };
           var markup = function (v) {
               return Text_Smolder_Markup["!"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericMaybe(dictGeneric))(v));
           };
-          return Prelude.map(Flare.functorUI)(function ($92) {
-              return SetHTML.create(markup($92));
+          return Prelude.map(Flare.functorUI)(function ($96) {
+              return SetHTML.create(markup($96));
           });
       })());
   };
+  exports["SetText"] = SetText;
+  exports["SetHTML"] = SetHTML;
   exports["Interactive"] = Interactive;
   exports["Read"] = Read;
   exports["Flammable"] = Flammable;
