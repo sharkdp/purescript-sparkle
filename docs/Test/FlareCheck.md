@@ -201,6 +201,15 @@ Applicative (UI e)
 (BooleanAlgebra a) => BooleanAlgebra (UI e a)
 ```
 
+#### `applyUIFlipped`
+
+``` purescript
+applyUIFlipped :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+```
+
+A flipped version of `<*>` for `UI` that arranges the components in the
+order of appearance.
+
 #### `boolean`
 
 ``` purescript
@@ -518,11 +527,8 @@ Encapsulate a `Signal` within a `UI` component.
 #### `(<**>)`
 
 ``` purescript
-(<**>) :: forall a b e. UI e a -> UI e (a -> b) -> UI e b
+infixl 4 applyUIFlipped as <**>
 ```
 
 _left-associative / precedence 4_
-
-A flipped version of `<*>` for `UI` that arranges the components in the
-order of appearance.
 
