@@ -84,11 +84,44 @@ var PS = { };
   };
 
   exports.showCharImpl = function (c) {
-    return c === "'" ? "'\\''" : "'" + c + "'";
+    var code = c.charCodeAt(0);
+    if (code < 0x20 || code === 0x7F) {
+      switch (c) {
+        case "\a": return "'\\a'";
+        case "\b": return "'\\b'";
+        case "\f": return "'\\f'";
+        case "\n": return "'\\n'";
+        case "\r": return "'\\r'";
+        case "\t": return "'\\t'";
+        case "\v": return "'\\v'";
+      }
+      return "'\\" + code.toString(10) + "'";
+    }
+    return c === "'" || c === "\\" ? "'\\" + c + "'" : "'" + c + "'";
   };
 
   exports.showStringImpl = function (s) {
-    return JSON.stringify(s);
+    var l = s.length;
+    return "\"" + s.replace(
+      /[\0-\x1F\x7F"\\]/g,
+      function (c, i) { // jshint ignore:line
+        switch (c) {
+          case "\"":
+          case "\\":
+            return "\\" + c;
+          case "\a": return "\\a";
+          case "\b": return "\\b";
+          case "\f": return "\\f";
+          case "\n": return "\\n";
+          case "\r": return "\\r";
+          case "\t": return "\\t";
+          case "\v": return "\\v";
+        }
+        var k = i + 1;
+        var empty = k < l && s[k] >= "0" && s[k] <= "9" ? "\\&" : "";
+        return "\\" + c.charCodeAt(0).toString(10) + empty;
+      }
+    ) + "\"";
   };
  
 })(PS["Prelude"] = PS["Prelude"] || {});
@@ -1588,9 +1621,8 @@ var PS = { };
               var acc = __copy_acc;
               var v = __copy_v;
               tco: while (true) {
-                  var acc1 = acc;
                   if (v instanceof Nil) {
-                      return acc1;
+                      return acc;
                   };
                   if (v instanceof Cons) {
                       var __tco_acc = new Cons(v.value0, acc);
@@ -1651,9 +1683,8 @@ var PS = { };
                   var b = __copy_b;
                   var v1 = __copy_v1;
                   tco: while (true) {
-                      var b1 = b;
                       if (v1 instanceof Nil) {
-                          return b1;
+                          return b;
                       };
                       if (v1 instanceof Cons) {
                           var __tco_v = v;
@@ -1721,7 +1752,6 @@ var PS = { };
   var Data_Foldable = PS["Data.Foldable"];
   var Data_List = PS["Data.List"];
   var Data_Maybe = PS["Data.Maybe"];
-  var Data_Maybe_Unsafe = PS["Data.Maybe.Unsafe"];
   var Data_Monoid = PS["Data.Monoid"];
   var Data_Traversable = PS["Data.Traversable"];
   var Data_Tuple = PS["Data.Tuple"];     
@@ -1907,51 +1937,48 @@ var PS = { };
                   if (v1 instanceof Leaf) {
                       return Data_Maybe.Nothing.value;
                   };
-                  var k = v;
-                  if (v1 instanceof Two && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k)(v1.value1)) {
+                  if (v1 instanceof Two && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(v)(v1.value1)) {
                       return new Data_Maybe.Just(v1.value2);
                   };
-                  var k = v;
-                  if (v1 instanceof Two && Prelude["<"](dictOrd)(k)(v1.value1)) {
+                  if (v1 instanceof Two && Prelude["<"](dictOrd)(v)(v1.value1)) {
                       var __tco_dictOrd = dictOrd;
+                      var __tco_v = v;
                       var __tco_v1 = v1.value0;
                       dictOrd = __tco_dictOrd;
-                      v = k;
+                      v = __tco_v;
                       v1 = __tco_v1;
                       continue tco;
                   };
-                  var k = v;
                   if (v1 instanceof Two) {
                       var __tco_dictOrd = dictOrd;
+                      var __tco_v = v;
                       var __tco_v1 = v1.value3;
                       dictOrd = __tco_dictOrd;
-                      v = k;
+                      v = __tco_v;
                       v1 = __tco_v1;
                       continue tco;
                   };
-                  var k = v;
-                  if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k)(v1.value1)) {
+                  if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(v)(v1.value1)) {
                       return new Data_Maybe.Just(v1.value2);
                   };
-                  var k = v;
-                  if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k)(v1.value4)) {
+                  if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(v)(v1.value4)) {
                       return new Data_Maybe.Just(v1.value5);
                   };
-                  var k = v;
-                  if (v1 instanceof Three && Prelude["<"](dictOrd)(k)(v1.value1)) {
+                  if (v1 instanceof Three && Prelude["<"](dictOrd)(v)(v1.value1)) {
                       var __tco_dictOrd = dictOrd;
+                      var __tco_v = v;
                       var __tco_v1 = v1.value0;
                       dictOrd = __tco_dictOrd;
-                      v = k;
+                      v = __tco_v;
                       v1 = __tco_v1;
                       continue tco;
                   };
-                  var k = v;
-                  if (v1 instanceof Three && (Prelude["<"](dictOrd)(v1.value1)(k) && Prelude["<="](dictOrd)(k)(v1.value4))) {
+                  if (v1 instanceof Three && (Prelude["<"](dictOrd)(v1.value1)(v) && Prelude["<="](dictOrd)(v)(v1.value4))) {
                       var __tco_dictOrd = dictOrd;
+                      var __tco_v = v;
                       var __tco_v1 = v1.value3;
                       dictOrd = __tco_dictOrd;
-                      v = k;
+                      v = __tco_v;
                       v1 = __tco_v1;
                       continue tco;
                   };
@@ -2042,161 +2069,161 @@ var PS = { };
       };
   };
   var insert = function (dictOrd) {
-      var up = function (__copy_v) {
-          return function (__copy_v1) {
-              var v = __copy_v;
-              var v1 = __copy_v1;
-              tco: while (true) {
-                  if (v instanceof Data_List.Nil) {
-                      return new Two(v1.value0, v1.value1, v1.value2, v1.value3);
+      var up = function (__copy_dictOrd1) {
+          return function (__copy_v) {
+              return function (__copy_v1) {
+                  var dictOrd1 = __copy_dictOrd1;
+                  var v = __copy_v;
+                  var v1 = __copy_v1;
+                  tco: while (true) {
+                      if (v instanceof Data_List.Nil) {
+                          return new Two(v1.value0, v1.value1, v1.value2, v1.value3);
+                      };
+                      if (v instanceof Data_List.Cons && v.value0 instanceof TwoLeft) {
+                          return fromZipper(dictOrd1)(v.value1)(new Three(v1.value0, v1.value1, v1.value2, v1.value3, v.value0.value0, v.value0.value1, v.value0.value2));
+                      };
+                      if (v instanceof Data_List.Cons && v.value0 instanceof TwoRight) {
+                          return fromZipper(dictOrd1)(v.value1)(new Three(v.value0.value0, v.value0.value1, v.value0.value2, v1.value0, v1.value1, v1.value2, v1.value3));
+                      };
+                      if (v instanceof Data_List.Cons && v.value0 instanceof ThreeLeft) {
+                          var __tco_dictOrd1 = dictOrd1;
+                          var __tco_v = v.value1;
+                          var __tco_v1 = new KickUp(new Two(v1.value0, v1.value1, v1.value2, v1.value3), v.value0.value0, v.value0.value1, new Two(v.value0.value2, v.value0.value3, v.value0.value4, v.value0.value5));
+                          dictOrd1 = __tco_dictOrd1;
+                          v = __tco_v;
+                          v1 = __tco_v1;
+                          continue tco;
+                      };
+                      if (v instanceof Data_List.Cons && v.value0 instanceof ThreeMiddle) {
+                          var __tco_dictOrd1 = dictOrd1;
+                          var __tco_v = v.value1;
+                          var __tco_v1 = new KickUp(new Two(v.value0.value0, v.value0.value1, v.value0.value2, v1.value0), v1.value1, v1.value2, new Two(v1.value3, v.value0.value3, v.value0.value4, v.value0.value5));
+                          dictOrd1 = __tco_dictOrd1;
+                          v = __tco_v;
+                          v1 = __tco_v1;
+                          continue tco;
+                      };
+                      if (v instanceof Data_List.Cons && v.value0 instanceof ThreeRight) {
+                          var __tco_dictOrd1 = dictOrd1;
+                          var __tco_v = v.value1;
+                          var __tco_v1 = new KickUp(new Two(v.value0.value0, v.value0.value1, v.value0.value2, v.value0.value3), v.value0.value4, v.value0.value5, new Two(v1.value0, v1.value1, v1.value2, v1.value3));
+                          dictOrd1 = __tco_dictOrd1;
+                          v = __tco_v;
+                          v1 = __tco_v1;
+                          continue tco;
+                      };
+                      throw new Error("Failed pattern match at Data.Map line 147, column 1 - line 148, column 1: " + [ v.constructor.name, v1.constructor.name ]);
                   };
-                  if (v instanceof Data_List.Cons && v.value0 instanceof TwoLeft) {
-                      return fromZipper(dictOrd)(v.value1)(new Three(v1.value0, v1.value1, v1.value2, v1.value3, v.value0.value0, v.value0.value1, v.value0.value2));
-                  };
-                  if (v instanceof Data_List.Cons && v.value0 instanceof TwoRight) {
-                      return fromZipper(dictOrd)(v.value1)(new Three(v.value0.value0, v.value0.value1, v.value0.value2, v1.value0, v1.value1, v1.value2, v1.value3));
-                  };
-                  if (v instanceof Data_List.Cons && v.value0 instanceof ThreeLeft) {
-                      var __tco_v = v.value1;
-                      var __tco_v1 = new KickUp(new Two(v1.value0, v1.value1, v1.value2, v1.value3), v.value0.value0, v.value0.value1, new Two(v.value0.value2, v.value0.value3, v.value0.value4, v.value0.value5));
-                      v = __tco_v;
-                      v1 = __tco_v1;
-                      continue tco;
-                  };
-                  if (v instanceof Data_List.Cons && v.value0 instanceof ThreeMiddle) {
-                      var __tco_v = v.value1;
-                      var __tco_v1 = new KickUp(new Two(v.value0.value0, v.value0.value1, v.value0.value2, v1.value0), v1.value1, v1.value2, new Two(v1.value3, v.value0.value3, v.value0.value4, v.value0.value5));
-                      v = __tco_v;
-                      v1 = __tco_v1;
-                      continue tco;
-                  };
-                  if (v instanceof Data_List.Cons && v.value0 instanceof ThreeRight) {
-                      var __tco_v = v.value1;
-                      var __tco_v1 = new KickUp(new Two(v.value0.value0, v.value0.value1, v.value0.value2, v.value0.value3), v.value0.value4, v.value0.value5, new Two(v1.value0, v1.value1, v1.value2, v1.value3));
-                      v = __tco_v;
-                      v1 = __tco_v1;
-                      continue tco;
-                  };
-                  throw new Error("Failed pattern match at Data.Map line 150, column 1 - line 151, column 1: " + [ v.constructor.name, v1.constructor.name ]);
               };
           };
       };
-      var down = function (__copy_ctx) {
-          return function (__copy_k) {
-              return function (__copy_v) {
-                  return function (__copy_v1) {
-                      var ctx = __copy_ctx;
-                      var k = __copy_k;
-                      var v = __copy_v;
-                      var v1 = __copy_v1;
-                      tco: while (true) {
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Leaf) {
-                              return up(ctx1)(new KickUp(Leaf.value, k1, v2, Leaf.value));
+      var down = function (__copy_dictOrd1) {
+          return function (__copy_ctx) {
+              return function (__copy_k) {
+                  return function (__copy_v) {
+                      return function (__copy_v1) {
+                          var dictOrd1 = __copy_dictOrd1;
+                          var ctx = __copy_ctx;
+                          var k = __copy_k;
+                          var v = __copy_v;
+                          var v1 = __copy_v1;
+                          tco: while (true) {
+                              if (v1 instanceof Leaf) {
+                                  return up(dictOrd1)(ctx)(new KickUp(Leaf.value, k, v, Leaf.value));
+                              };
+                              if (v1 instanceof Two && Prelude["=="](dictOrd1["__superclass_Prelude.Eq_0"]())(k)(v1.value1)) {
+                                  return fromZipper(dictOrd1)(ctx)(new Two(v1.value0, k, v, v1.value3));
+                              };
+                              if (v1 instanceof Two && Prelude["<"](dictOrd1)(k)(v1.value1)) {
+                                  var __tco_dictOrd1 = dictOrd1;
+                                  var __tco_ctx = new Data_List.Cons(new TwoLeft(v1.value1, v1.value2, v1.value3), ctx);
+                                  var __tco_k = k;
+                                  var __tco_v = v;
+                                  var __tco_v1 = v1.value0;
+                                  dictOrd1 = __tco_dictOrd1;
+                                  ctx = __tco_ctx;
+                                  k = __tco_k;
+                                  v = __tco_v;
+                                  v1 = __tco_v1;
+                                  continue tco;
+                              };
+                              if (v1 instanceof Two) {
+                                  var __tco_dictOrd1 = dictOrd1;
+                                  var __tco_ctx = new Data_List.Cons(new TwoRight(v1.value0, v1.value1, v1.value2), ctx);
+                                  var __tco_k = k;
+                                  var __tco_v = v;
+                                  var __tco_v1 = v1.value3;
+                                  dictOrd1 = __tco_dictOrd1;
+                                  ctx = __tco_ctx;
+                                  k = __tco_k;
+                                  v = __tco_v;
+                                  v1 = __tco_v1;
+                                  continue tco;
+                              };
+                              if (v1 instanceof Three && Prelude["=="](dictOrd1["__superclass_Prelude.Eq_0"]())(k)(v1.value1)) {
+                                  return fromZipper(dictOrd1)(ctx)(new Three(v1.value0, k, v, v1.value3, v1.value4, v1.value5, v1.value6));
+                              };
+                              if (v1 instanceof Three && Prelude["=="](dictOrd1["__superclass_Prelude.Eq_0"]())(k)(v1.value4)) {
+                                  return fromZipper(dictOrd1)(ctx)(new Three(v1.value0, v1.value1, v1.value2, v1.value3, k, v, v1.value6));
+                              };
+                              if (v1 instanceof Three && Prelude["<"](dictOrd1)(k)(v1.value1)) {
+                                  var __tco_dictOrd1 = dictOrd1;
+                                  var __tco_ctx = new Data_List.Cons(new ThreeLeft(v1.value1, v1.value2, v1.value3, v1.value4, v1.value5, v1.value6), ctx);
+                                  var __tco_k = k;
+                                  var __tco_v = v;
+                                  var __tco_v1 = v1.value0;
+                                  dictOrd1 = __tco_dictOrd1;
+                                  ctx = __tco_ctx;
+                                  k = __tco_k;
+                                  v = __tco_v;
+                                  v1 = __tco_v1;
+                                  continue tco;
+                              };
+                              if (v1 instanceof Three && (Prelude["<"](dictOrd1)(v1.value1)(k) && Prelude["<="](dictOrd1)(k)(v1.value4))) {
+                                  var __tco_dictOrd1 = dictOrd1;
+                                  var __tco_ctx = new Data_List.Cons(new ThreeMiddle(v1.value0, v1.value1, v1.value2, v1.value4, v1.value5, v1.value6), ctx);
+                                  var __tco_k = k;
+                                  var __tco_v = v;
+                                  var __tco_v1 = v1.value3;
+                                  dictOrd1 = __tco_dictOrd1;
+                                  ctx = __tco_ctx;
+                                  k = __tco_k;
+                                  v = __tco_v;
+                                  v1 = __tco_v1;
+                                  continue tco;
+                              };
+                              if (v1 instanceof Three) {
+                                  var __tco_dictOrd1 = dictOrd1;
+                                  var __tco_ctx = new Data_List.Cons(new ThreeRight(v1.value0, v1.value1, v1.value2, v1.value3, v1.value4, v1.value5), ctx);
+                                  var __tco_k = k;
+                                  var __tco_v = v;
+                                  var __tco_v1 = v1.value6;
+                                  dictOrd1 = __tco_dictOrd1;
+                                  ctx = __tco_ctx;
+                                  k = __tco_k;
+                                  v = __tco_v;
+                                  v1 = __tco_v1;
+                                  continue tco;
+                              };
+                              throw new Error("Failed pattern match at Data.Map line 147, column 1 - line 148, column 1: " + [ ctx.constructor.name, k.constructor.name, v.constructor.name, v1.constructor.name ]);
                           };
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Two && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k1)(v1.value1)) {
-                              return fromZipper(dictOrd)(ctx1)(new Two(v1.value0, k1, v2, v1.value3));
-                          };
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Two && Prelude["<"](dictOrd)(k1)(v1.value1)) {
-                              var __tco_ctx = new Data_List.Cons(new TwoLeft(v1.value1, v1.value2, v1.value3), ctx1);
-                              var __tco_v1 = v1.value0;
-                              ctx = __tco_ctx;
-                              k = k1;
-                              v = v2;
-                              v1 = __tco_v1;
-                              continue tco;
-                          };
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Two) {
-                              var __tco_ctx = new Data_List.Cons(new TwoRight(v1.value0, v1.value1, v1.value2), ctx1);
-                              var __tco_v1 = v1.value3;
-                              ctx = __tco_ctx;
-                              k = k1;
-                              v = v2;
-                              v1 = __tco_v1;
-                              continue tco;
-                          };
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k1)(v1.value1)) {
-                              return fromZipper(dictOrd)(ctx1)(new Three(v1.value0, k1, v2, v1.value3, v1.value4, v1.value5, v1.value6));
-                          };
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Three && Prelude["=="](dictOrd["__superclass_Prelude.Eq_0"]())(k1)(v1.value4)) {
-                              return fromZipper(dictOrd)(ctx1)(new Three(v1.value0, v1.value1, v1.value2, v1.value3, k1, v2, v1.value6));
-                          };
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Three && Prelude["<"](dictOrd)(k1)(v1.value1)) {
-                              var __tco_ctx = new Data_List.Cons(new ThreeLeft(v1.value1, v1.value2, v1.value3, v1.value4, v1.value5, v1.value6), ctx1);
-                              var __tco_v1 = v1.value0;
-                              ctx = __tco_ctx;
-                              k = k1;
-                              v = v2;
-                              v1 = __tco_v1;
-                              continue tco;
-                          };
-                          var ctx1 = ctx;
-                          var k1 = k;
-                          var v2 = v;
-                          if (v1 instanceof Three && (Prelude["<"](dictOrd)(v1.value1)(k1) && Prelude["<="](dictOrd)(k1)(v1.value4))) {
-                              var __tco_ctx = new Data_List.Cons(new ThreeMiddle(v1.value0, v1.value1, v1.value2, v1.value4, v1.value5, v1.value6), ctx1);
-                              var __tco_v1 = v1.value3;
-                              ctx = __tco_ctx;
-                              k = k1;
-                              v = v2;
-                              v1 = __tco_v1;
-                              continue tco;
-                          };
-                          if (v1 instanceof Three) {
-                              var __tco_ctx = new Data_List.Cons(new ThreeRight(v1.value0, v1.value1, v1.value2, v1.value3, v1.value4, v1.value5), ctx);
-                              var __tco_k = k;
-                              var __tco_v = v;
-                              var __tco_v1 = v1.value6;
-                              ctx = __tco_ctx;
-                              k = __tco_k;
-                              v = __tco_v;
-                              v1 = __tco_v1;
-                              continue tco;
-                          };
-                          throw new Error("Failed pattern match at Data.Map line 150, column 1 - line 151, column 1: " + [ ctx.constructor.name, k.constructor.name, v.constructor.name, v1.constructor.name ]);
                       };
                   };
               };
           };
       };
-      return down(Data_List.Nil.value);
+      return down(dictOrd)(Data_List.Nil.value);
   };
   var empty = Leaf.value;
-  var fromFoldable = function (dictOrd) {
-      return function (dictFoldable) {
-          return Data_Foldable.foldl(dictFoldable)(function (m) {
-              return function (v) {
-                  return insert(dictOrd)(v.value0)(v.value1)(m);
-              };
-          })(empty);
-      };
-  };
   var fromList = function (dictOrd) {
-      return fromFoldable(dictOrd)(Data_List.foldableList);
+      return Data_Foldable.foldl(Data_List.foldableList)(function (m) {
+          return function (v) {
+              return insert(dictOrd)(v.value0)(v.value1)(m);
+          };
+      })(empty);
   };
   exports["keys"] = keys;
   exports["fromList"] = fromList;
-  exports["fromFoldable"] = fromFoldable;
   exports["lookup"] = lookup;
   exports["insert"] = insert;
   exports["empty"] = empty;;
@@ -2649,6 +2676,7 @@ var PS = { };
   var Data_Traversable = PS["Data.Traversable"];
   var Control_Apply = PS["Control.Apply"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];
+  var Color = PS["Color"];
   var DOM = PS["DOM"];
   var DOM_Node_Types = PS["DOM.Node.Types"];
   var Signal = PS["Signal"];
@@ -2701,10 +2729,8 @@ var PS = { };
               return UI(function __do() {
                   var v = Signal_Channel.channel($$default)();
                   var v1 = createComp(label)($$default)(Signal_Channel.send(v))();
-                  return (function () {
-                      var signal = Signal_Channel.subscribe(v);
-                      return Prelude["return"](Control_Monad_Eff.applicativeEff)(new Flare([ v1 ], signal));
-                  })()();
+                  var signal = Signal_Channel.subscribe(v);
+                  return new Flare([ v1 ], signal);
               });
           };
       };
@@ -3593,8 +3619,8 @@ var PS = { };
   var Data_String = PS["Data.String"];
   var Data_String_Regex = PS["Data.String.Regex"];
   var Data_Tuple = PS["Data.Tuple"];
-  var Test_FlareCheck = PS["Test.FlareCheck"];
   var Flare = PS["Flare"];
+  var Test_FlareCheck = PS["Test.FlareCheck"];
   var Control_Monad_Eff = PS["Control.Monad.Eff"];     
   var TRegex = function (x) {
       return x;
