@@ -15,7 +15,6 @@ module Test.FlareCheck
   , flareDoc
   , flareCheck'
   , flareCheck
-  , module Flare
   ) where
 
 import Prelude
@@ -26,31 +25,32 @@ import Data.Array as A
 import Data.Array.Unsafe as AU
 import Data.Char (toCharCode)
 import Data.Either (Either(..))
-import Data.Foldable (class Foldable, foldMap, for_, intercalate, foldl)
+import Data.Foldable (class Foldable, for_, intercalate, foldl)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
 import Data.List (List(), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.String (split, length, charAt, joinWith)
+import Data.String (split, length, charAt)
 import Data.Tuple (Tuple(..))
 
 import Global (readFloat, isFinite)
 
 import Type.Proxy (Proxy(..))
 
-import Signal.Channel (Chan())
+import Signal.Channel (CHANNEL())
 
 import DOM (DOM())
 import DOM.Node.Types (Element())
 
-import Text.Smolder.Markup as H
+import Text.Smolder.Markup (Markup, text) as H
 import Text.Smolder.Markup ((!))
-import Text.Smolder.HTML as H
+import Text.Smolder.HTML (pre, span) as H
 import Text.Smolder.HTML.Attributes as HA
-import Text.Smolder.Renderer.String as H
+import Text.Smolder.Renderer.String (render) as H
 
 import Signal (runSignal)
-import Flare
+import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup,
+              boolean, stringPattern, int, number)
 
 -- | A type class for input parameters for interactive tests. Instances for
 -- | type `a` must provide a way to create a Flare UI which holds a value of
@@ -336,7 +336,7 @@ flareDoc' :: forall t e. (Interactive t)
             -> Label
             -> Maybe String
             -> t
-            -> Eff (chan :: Chan, dom :: DOM | e) Unit
+            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
 flareDoc' parentId title doc x = do
   let flare = interactive (pure x)
   { components, signal } <- setupFlare flare
@@ -350,7 +350,7 @@ flareDoc :: forall t e. (Interactive t)
             => Label
             -> Maybe String
             -> t
-            -> Eff (chan :: Chan, dom :: DOM | e) Unit
+            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
 flareDoc = flareDoc' "tests"
 
 -- | Run an interactive test. The ID specifies the parent element to which
@@ -359,12 +359,12 @@ flareCheck' :: forall t e. (Interactive t)
             => ElementId
             -> Label
             -> t
-            -> Eff (chan :: Chan, dom :: DOM | e) Unit
+            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
 flareCheck' id label = flareDoc' id label Nothing
 
 -- | Run an interactive test. The label provides a title for the test.
 flareCheck :: forall t e. (Interactive t)
             => Label
             -> t
-            -> Eff (chan :: Chan, dom :: DOM | e) Unit
+            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
 flareCheck = flareCheck' "tests"

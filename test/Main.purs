@@ -3,7 +3,7 @@ module Test.Main where
 import Prelude
 
 import Data.Array (filter)
-import Data.Either (Either(..))
+import Data.Either (Either)
 import Data.Generic (class Generic)
 import Data.Int (even)
 import Data.List (List())
@@ -12,7 +12,8 @@ import Data.String (length, charCodeAt, joinWith)
 import Data.String.Regex (Regex(), regex, parseFlags, match)
 import Data.Tuple (Tuple(..))
 
-import Test.FlareCheck
+import Flare (fieldset, string)
+import Test.FlareCheck (class Flammable, class Interactive, flareCheck', interactiveGeneric)
 
 newtype TRegex = TRegex Regex
 
