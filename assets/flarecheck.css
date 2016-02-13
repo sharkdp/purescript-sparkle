@@ -37,7 +37,7 @@ fieldset.flarecheck-test > legend {
     margin-bottom: 5px;
 }
 
-.flarecheck-test input {
+.flarecheck-test input:not([type="range"]) {
     padding: 3px;
     border-radius: 3px;
     border: 1px solid #888;
