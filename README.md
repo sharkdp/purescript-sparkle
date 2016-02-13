@@ -19,7 +19,7 @@ flareCheck "substring" substring
 ```
 This automatically creates an interactive testing environment (see [demo page](http://sharkdp.github.io/purescript-flarecheck/) for a working version) like this:
 
-[![](http://i.imgur.com/EmwNL9X.png)](http://sharkdp.github.io/purescript-flarecheck/)
+[![](http://i.imgur.com/AxnoA5j.png)](http://sharkdp.github.io/purescript-flarecheck/)
 
 Notice how the type information is used to create appropriate input fields for `Int` and `String`. Similarly, calling
 ```purs
@@ -27,7 +27,7 @@ flareCheck "filter even" (filter even)
 ```
 creates the following interface:
 
-[![](http://i.imgur.com/LXexxEm.png)](http://sharkdp.github.io/purescript-flarecheck/)
+[![](http://i.imgur.com/KDg8KfD.png)](http://sharkdp.github.io/purescript-flarecheck/)
 
 ## Minimal setup
 
@@ -60,4 +60,4 @@ pulp build -O -I test -m Test.Main -t test.js
 <div id="tests"></div>
 <script src="test.js"></script>
 ```
-See the [assets](assets) folder for a HTML and CSS template.
+See the [assets](assets) folder for full HTML and CSS templates.
