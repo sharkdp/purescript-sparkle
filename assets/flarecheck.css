@@ -2,7 +2,8 @@
 .flarecheck-test code,
 .flarecheck-test input,
 .flarecheck-test label,
-.flarecheck-test legend {
+.flarecheck-test legend,
+.flarecheck-test select {
     font-family: 'Source Code Pro', courier;
 }
 
@@ -59,7 +60,7 @@ fieldset.flarecheck-test > legend {
 }
 
 .flarecheck-test label {
-    width: 150px;
+    width: 160px;
     display: inline-block;
 }
 

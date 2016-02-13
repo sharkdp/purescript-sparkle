@@ -5,6 +5,11 @@ module Test.FlareCheck
   , typeName
   , defaults
   , read
+  , NonNegativeInt(..)
+  , SmallInt(..)
+  , SmallNumber(..)
+  , Multiline(..)
+  , WrapEnum(..)
   , class Interactive
   , interactive
   , interactiveGeneric
@@ -25,12 +30,13 @@ import Data.Array as A
 import Data.Array.Unsafe as AU
 import Data.Char (toCharCode)
 import Data.Either (Either(..))
+import Data.Enum (class Enum, succ)
 import Data.Foldable (class Foldable, for_, intercalate, foldl)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
 import Data.List (List(), toList)
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.String (split, length, charAt)
+import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.String (split, length, charAt, joinWith)
 import Data.Tuple (Tuple(..))
 
 import Global (readFloat, isFinite)
@@ -50,7 +56,8 @@ import Text.Smolder.Renderer.String (render) as H
 
 import Signal (runSignal)
 import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup,
-              boolean, stringPattern, int, number)
+             boolean, stringPattern, int, intRange, intSlider, number,
+             numberSlider, select)
 
 -- | A type class for input parameters for interactive tests. Instances for
 -- | type `a` must provide a way to create a Flare UI which holds a value of
@@ -88,6 +95,40 @@ instance flammableEither :: (Flammable a, Flammable b) => Flammable (Either a b)
                      <*> spark
     where toEither "Left" x _ = Left x
           toEither _      _ y = Right y
+
+-- | A newtype for non-negative integer values.
+newtype NonNegativeInt = NonNegativeInt Int
+
+instance flammableNonNegativeInt :: Flammable NonNegativeInt where
+  spark = NonNegativeInt <$> intRange "Int" 0 top 1
+
+-- | A newtype for small integer values in the range from 0 to 100.
+newtype SmallInt = SmallInt Int
+
+instance flammableSmallInt :: Flammable SmallInt where
+  spark = SmallInt <$> intSlider "Int" 0 100 1
+
+-- | A newtype for numbers in the closed interval from 0.0 and 1.0.
+newtype SmallNumber = SmallNumber Number
+
+instance flammableSmallNumber :: Flammable SmallNumber where
+  spark = SmallNumber <$> numberSlider "Number" 0.0 1.0 0.00001 0.5
+
+-- | A newtype for strings where "\n" is parsed as a newline
+-- | (instead of "\\n").
+newtype Multiline = Multiline String
+
+instance flammableMultiline :: Flammable Multiline where
+  spark = Multiline <$> toNewlines <$> string "String" "foo\\nbar"
+    where
+      toNewlines = split "\\n" >>> joinWith "\n"
+
+newtype WrapEnum a = WrapEnum a
+
+instance flammableWrapEnum :: (Enum a, Show a) => Flammable (WrapEnum a) where
+  spark = WrapEnum <$> select "Enum" bottom (rest bottom) show
+    where
+      rest x = maybe [] (\y -> y `A.cons` (rest y)) (succ x)
 
 -- | A class for types which can be parsed from a `String`. This class is used
 -- | to construct input fields for `Array a` and `List a`.
@@ -292,6 +333,10 @@ instance interactiveArray :: Generic a => Interactive (Array a) where
 
 instance interactiveList :: Generic a => Interactive (List a) where
   interactive = interactiveFoldable
+
+instance interactiveWrapEnum :: Generic a => Interactive (WrapEnum a) where
+  interactive = interactiveGeneric <<< map unwrap
+    where unwrap (WrapEnum e) = e
 
 instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -> b) where
   interactive f = interactive (f <*> spark)

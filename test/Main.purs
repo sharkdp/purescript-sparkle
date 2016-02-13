@@ -4,7 +4,8 @@ import Prelude
 
 import Data.Array (filter)
 import Data.Either (Either)
-import Data.Generic (class Generic)
+import Data.Enum (class Enum, defaultSucc, defaultPred, Cardinality(..))
+import Data.Generic (class Generic, gShow)
 import Data.Int (even)
 import Data.List (List())
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -13,7 +14,9 @@ import Data.String.Regex (Regex(), regex, parseFlags, match)
 import Data.Tuple (Tuple(..))
 
 import Flare (fieldset, string)
-import Test.FlareCheck (class Flammable, class Interactive, flareCheck', interactiveGeneric)
+import Test.FlareCheck (class Flammable, class Interactive, flareCheck',
+                       interactiveGeneric, NonNegativeInt(..), SmallInt(..),
+                       SmallNumber(..), Multiline(..), WrapEnum(..))
 
 newtype TRegex = TRegex Regex
 
@@ -33,6 +36,37 @@ derive instance genericFoo :: Generic Foo
 
 instance interactiveFoo :: Interactive Foo
   where interactive = interactiveGeneric
+
+data TestEnum = Option1 | Option2 | TrueOrFalse Boolean
+
+derive instance genericTestEnum :: Generic TestEnum
+
+instance showTestEnum :: Show TestEnum where
+  show = gShow
+
+testFromEnum Option1 = 0
+testFromEnum Option2 = 1
+testFromEnum (TrueOrFalse false) = 2
+testFromEnum (TrueOrFalse true) = 3
+
+testToEnum 0 = Just Option1
+testToEnum 1 = Just Option2
+testToEnum 2 = Just $ TrueOrFalse false
+testToEnum 3 = Just $ TrueOrFalse true
+testToEnum _ = Nothing
+
+instance boundedTestEnum :: Bounded TestEnum where
+  bottom = Option1
+  top = TrueOrFalse true
+
+instance enumTestEnum :: Enum TestEnum where
+  cardinality = Cardinality 4
+
+  fromEnum = testFromEnum
+  toEnum = testToEnum
+
+  succ = defaultSucc testToEnum testFromEnum
+  pred = defaultPred testToEnum testFromEnum
 
 main = do
   flareCheck' "tests1" "length"      length
@@ -63,3 +97,8 @@ main = do
   fc "Nested 2" (Tuple 1 (Tuple 2 (Tuple 3 (Tuple 4 false))))
   fc "Nested Arrays" [[[[1], [2,3]], [[4]]]]
   fc "Records" (Foo { num: 42.3, str: "foo", bool: false, optional: Just '🔥', arr: [2, 17] })
+  fc "NonNegativeInt" (\(NonNegativeInt x) -> x)
+  fc "SmallInt" (\(SmallInt x) -> x)
+  fc "SmallNumber" (\(SmallNumber x) -> x)
+  fc "Multiline" (\(Multiline str) -> str)
+  fc "WrapEnum" (id :: (WrapEnum TestEnum) -> _)
