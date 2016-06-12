@@ -24,20 +24,22 @@ module Test.FlareCheck
 
 import Prelude
 
-import Control.Monad.Eff (Eff())
+import Control.Monad.Eff (Eff)
 
 import Data.Array as A
-import Data.Array.Unsafe as AU
+import Data.Array.Partial as AP
 import Data.Char (toCharCode)
 import Data.Either (Either(..))
-import Data.Enum (class Enum, succ)
+import Data.Enum (class BoundedEnum, succ, enumFromTo)
 import Data.Foldable (class Foldable, for_, intercalate, foldl)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
-import Data.List (List(), toList)
-import Data.Maybe (Maybe(..), fromMaybe, maybe)
+import Data.List (List(), fromFoldable)
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.NonEmpty ((:|))
 import Data.String (split, length, charAt, joinWith)
 import Data.Tuple (Tuple(..))
+import Partial.Unsafe (unsafePartial)
 
 import Global (readFloat, isFinite)
 
@@ -90,7 +92,7 @@ instance flammableMaybe :: (Flammable a) => Flammable (Maybe a) where
 
 instance flammableEither :: (Flammable a, Flammable b) => Flammable (Either a b) where
   spark = fieldset "Either" $
-            toEither <$> radioGroup "Select:" "Left" ["Right"] id
+            toEither <$> radioGroup "Select:" ("Left" :| ["Right"]) id
                      <*> spark
                      <*> spark
     where toEither "Left" x _ = Left x
@@ -125,10 +127,13 @@ instance flammableMultiline :: Flammable Multiline where
 
 newtype WrapEnum a = WrapEnum a
 
-instance flammableWrapEnum :: (Enum a, Show a) => Flammable (WrapEnum a) where
-  spark = WrapEnum <$> select "Enum" bottom (rest bottom) show
+instance flammableWrapEnum :: (BoundedEnum a, Show a) => Flammable (WrapEnum a) where
+  spark = WrapEnum <$> select "Enum" (bottom :| rest) show
     where
-      rest x = maybe [] (\y -> y `A.cons` (rest y)) (succ x)
+      rest :: Array a
+      rest = fromMaybe [] do
+        mSucc <- succ bottom
+        pure (enumFromTo mSucc top)
 
 -- | A class for types which can be parsed from a `String`. This class is used
 -- | to construct input fields for `Array a` and `List a`.
@@ -175,7 +180,7 @@ instance flammableArrayRead :: (Read a) => Flammable (Array a) where
     where typeName' = typeName (Proxy :: Proxy a)
 
 instance flammableListRead :: (Read a) => Flammable (List a) where
-  spark = fieldset ("List " <> typeName') (toList <$> csvUI)
+  spark = fieldset ("List " <> typeName') (fromFoldable <$> csvUI)
     where typeName' = typeName (Proxy :: Proxy a)
 
 -- | A data type that describes possible output actions and values for an
@@ -223,7 +228,7 @@ constructor :: String -> H.Markup
 constructor long = tooltip modString $ highlight "constructor" name
   where
     parts = split "." long
-    name = AU.last parts
+    name = unsafePartial (AP.last parts)
     modString =
       if A.length parts == 1
         then "Data constructor form unknown module"
@@ -260,6 +265,7 @@ prettyPrec d (SRecord arr) = do
 prettyPrec d (SBoolean x)  = tooltip "Boolean" $ highlight "boolean" (show x)
 prettyPrec d (SNumber x)   = tooltip "Number"  $ highlight "number" (show x)
 prettyPrec d (SInt x)      = tooltip "Int"     $ highlight "number" (show x)
+prettyPrec d SUnit         = tooltip "Unit"    $ text (show unit)
 prettyPrec d (SString x)   = tooltip tip       $ highlight "string" (show x)
   where tip = "String of length " <> show (length x)
 prettyPrec d (SChar x)     = tooltip tip       $ highlight "string" (show x)

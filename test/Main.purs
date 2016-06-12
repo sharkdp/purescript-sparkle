@@ -3,8 +3,8 @@ module Test.Main where
 import Prelude
 
 import Data.Array (filter)
-import Data.Either (Either)
-import Data.Enum (class Enum, defaultSucc, defaultPred, Cardinality(..))
+import Data.Either (Either, fromRight)
+import Data.Enum (class Enum, class BoundedEnum, defaultSucc, defaultPred, Cardinality(..))
 import Data.Generic (class Generic, gShow)
 import Data.Int (even)
 import Data.List (List())
@@ -12,18 +12,20 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Data.String (length, charCodeAt, joinWith)
 import Data.String.Regex (Regex(), regex, parseFlags, match)
 import Data.Tuple (Tuple(..))
+import Partial.Unsafe (unsafePartial)
 
 import Flare (fieldset, string)
 import Test.FlareCheck (class Flammable, class Interactive, flareCheck',
                        interactiveGeneric, NonNegativeInt(..), SmallInt(..),
-                       SmallNumber(..), Multiline(..), WrapEnum(..))
+                       SmallNumber(..), Multiline(..), WrapEnum)
 
 newtype TRegex = TRegex Regex
 
 instance flammableTRegex :: Flammable TRegex where
   spark = fieldset "Regex" $ TRegex <$>
-            (regex <$> string "Pattern" "fo+"
-                   <*> (parseFlags <$> string "Flags (g,i,m)" "g"))
+            (regex' <$> string "Pattern" "fo+"
+                    <*> (parseFlags <$> string "Flags (g,i,m)" "g"))
+    where regex' pattern flags = unsafePartial $ fromRight (regex pattern flags)
 
 newtype Foo = Foo { num :: Number
                   , str :: String
@@ -55,18 +57,22 @@ testToEnum 2 = Just $ TrueOrFalse false
 testToEnum 3 = Just $ TrueOrFalse true
 testToEnum _ = Nothing
 
+derive instance eqTestEnum :: Eq TestEnum
+derive instance ordTestEnum :: Ord TestEnum
+
 instance boundedTestEnum :: Bounded TestEnum where
   bottom = Option1
   top = TrueOrFalse true
 
 instance enumTestEnum :: Enum TestEnum where
+  succ = defaultSucc testToEnum testFromEnum
+  pred = defaultPred testToEnum testFromEnum
+
+instance boundedEnumTestEnum :: BoundedEnum TestEnum where
   cardinality = Cardinality 4
 
   fromEnum = testFromEnum
   toEnum = testToEnum
-
-  succ = defaultSucc testToEnum testFromEnum
-  pred = defaultPred testToEnum testFromEnum
 
 main = do
   flareCheck' "tests1" "length"      length
