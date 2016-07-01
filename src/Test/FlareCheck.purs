@@ -206,12 +206,7 @@ interactiveFoldable = map (SetHTML <<< H.pre <<< markup)
   where
     markup val = do
       text "fromFoldable "
-      prettyPrint (fromFoldable val)
-
-    -- TODO: fromFoldable should appear in Data.Array soon
-    -- Inefficient version for the meantime:
-    fromFoldable :: forall g b. Foldable g => g b -> Array b
-    fromFoldable = foldl A.snoc []
+      prettyPrint (A.fromFoldable val)
 
 -- | Takes a CSS classname and a `String` and returns a 'syntax highlighted'
 -- | version of the `String`.
