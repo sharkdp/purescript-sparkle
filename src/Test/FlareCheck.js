@@ -39,16 +39,6 @@ exports.appendTest = function(parentId) {
   };
 };
 
-// From http://stackoverflow.com/a/6234804/704831
-exports.escapeHTML = function(unsafe) {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-};
-
 exports.setText = function(output) {
   return function(str) {
     return function() {

@@ -31,13 +31,13 @@ import Data.Array.Partial as AP
 import Data.Char (toCharCode)
 import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, succ, enumFromTo)
-import Data.Foldable (class Foldable, for_, intercalate, foldl)
+import Data.Foldable (class Foldable, for_, intercalate)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
 import Data.List (List(), fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.NonEmpty ((:|))
-import Data.String (split, length, charAt, joinWith)
+import Data.String (Pattern(..), split, length, charAt, joinWith)
 import Data.Tuple (Tuple(..))
 import Partial.Unsafe (unsafePartial)
 
@@ -123,7 +123,7 @@ newtype Multiline = Multiline String
 instance flammableMultiline :: Flammable Multiline where
   spark = Multiline <$> toNewlines <$> string "String" "foo\\nbar"
     where
-      toNewlines = split "\\n" >>> joinWith "\n"
+      toNewlines = split (Pattern "\\n") >>> joinWith "\n"
 
 newtype WrapEnum a = WrapEnum a
 
@@ -172,7 +172,7 @@ instance readBool :: Read Boolean where
 
 -- | A UI for comma separated values.
 csvUI :: forall a e. (Read a) => UI e (Array a)
-csvUI = (A.catMaybes <<< map read <<< split ",") <$> string "CSV:" defaults'
+csvUI = (A.catMaybes <<< map read <<< split (Pattern ",")) <$> string "CSV:" defaults'
   where defaults' = defaults (Proxy :: Proxy a)
 
 instance flammableArrayRead :: (Read a) => Flammable (Array a) where
@@ -187,7 +187,7 @@ instance flammableListRead :: (Read a) => Flammable (List a) where
 -- | interactive test.
 data Renderable
   = SetText String
-  | SetHTML H.Markup
+  | SetHTML (H.Markup Unit)
 
 -- | A type class for interactive tests. Instances must provide a way to create
 -- | a Flare UI which returns a `Renderable` output.
@@ -205,24 +205,24 @@ interactiveFoldable :: forall f a e. (Foldable f, Generic a)
 interactiveFoldable = map (SetHTML <<< H.pre <<< markup)
   where
     markup val = do
-      text "fromFoldable "
+      H.text "fromFoldable "
       prettyPrint (A.fromFoldable val)
 
 -- | Takes a CSS classname and a `String` and returns a 'syntax highlighted'
 -- | version of the `String`.
-highlight :: String -> String -> H.Markup
+highlight :: forall e. String -> String -> H.Markup e
 highlight syntaxClass value =
-  H.span ! HA.className ("flarecheck-" <> syntaxClass) $ text value
+  H.span ! HA.className ("flarecheck-" <> syntaxClass) $ H.text value
 
 -- | Add a tooltip to an element.
-tooltip :: String -> H.Markup -> H.Markup
+tooltip :: forall e. String -> H.Markup e -> H.Markup e
 tooltip tip = H.span ! HA.className "flarecheck-tooltip" ! HA.title tip
 
 -- | Extract the constructor name from a string like `Data.Tuple.Tuple`.
-constructor :: String -> H.Markup
+constructor :: forall e. String -> H.Markup e
 constructor long = tooltip modString $ highlight "constructor" name
   where
-    parts = split "." long
+    parts = split (Pattern ".") long
     name = unsafePartial (AP.last parts)
     modString =
       if A.length parts == 1
@@ -231,7 +231,7 @@ constructor long = tooltip modString $ highlight "constructor" name
 
 -- | Pretty print a `GenericSpine`. This is an adapted version of
 -- | `Data.Generic.genericShowPrec`.
-prettyPrec :: Int -> GenericSpine -> H.Markup
+prettyPrec :: forall e. Int -> GenericSpine -> H.Markup e
 prettyPrec d (SProd s arr) = do
   if (A.null arr)
     then constructor s
@@ -239,44 +239,44 @@ prettyPrec d (SProd s arr) = do
       showParen (d > 10) $ do
         constructor s
         for_ arr \f -> do
-          text " "
+          H.text " "
           prettyPrec 11 (f unit)
   where showParen false x = x
         showParen true  x = do
-          text "("
+          H.text "("
           x
-          text ")"
+          H.text ")"
 
 prettyPrec d (SRecord arr) = do
-  text "{ "
-  intercalate (text ", ") (map recEntry arr)
-  text " }"
+  H.text "{ "
+  intercalate (H.text ", ") (map recEntry arr)
+  H.text " }"
     where
       recEntry x = do
         highlight "record-field" x.recLabel
-        text ": "
+        H.text ": "
         prettyPrec 0 (x.recValue unit)
 
 prettyPrec d (SBoolean x)  = tooltip "Boolean" $ highlight "boolean" (show x)
 prettyPrec d (SNumber x)   = tooltip "Number"  $ highlight "number" (show x)
 prettyPrec d (SInt x)      = tooltip "Int"     $ highlight "number" (show x)
-prettyPrec d SUnit         = tooltip "Unit"    $ text (show unit)
+prettyPrec d SUnit         = tooltip "Unit"    $ H.text (show unit)
 prettyPrec d (SString x)   = tooltip tip       $ highlight "string" (show x)
   where tip = "String of length " <> show (length x)
 prettyPrec d (SChar x)     = tooltip tip       $ highlight "string" (show x)
   where tip = "Char (with char code " <> show (toCharCode x) <> ")"
 prettyPrec d (SArray arr)  = tooltip tip $ do
-  text "["
-  intercalate (text ", ") (map (\x -> prettyPrec 0 (x unit)) arr)
-  text "]"
+  H.text "["
+  intercalate (H.text ", ") (map (\x -> prettyPrec 0 (x unit)) arr)
+  H.text "]"
     where tip = "Array of length " <> show (A.length arr)
 
 -- | Pretty print a `GenericSpine`.
-pretty :: GenericSpine -> H.Markup
+pretty :: forall e. GenericSpine -> H.Markup e
 pretty = prettyPrec 0
 
 -- | Pretty print a value which has a `Generic` type.
-prettyPrint :: forall a. Generic a => a -> H.Markup
+prettyPrint :: forall a e. Generic a => a -> H.Markup e
 prettyPrint = toSpine >>> pretty
 
 -- | A default `interactive` implementation for types with a `Generic` instance.
@@ -350,13 +350,6 @@ foreign import appendTest :: forall e. ElementId
                           -> String
                           -> Array Element
                           -> Eff (dom :: DOM | e) Element
-
--- | Escape HTML special characters
-foreign import escapeHTML :: String -> String
-
--- | Same as `text` from Smolder, but escapes special characters
-text :: String -> H.Markup
-text s = H.text (escapeHTML s)
 
 -- | Write the string to the specified output element.
 foreign import setText :: forall e. Element
