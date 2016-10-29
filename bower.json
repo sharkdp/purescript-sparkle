@@ -16,9 +16,9 @@
     "html"
   ],
   "dependencies": {
-    "purescript-flare": "^1.0.0",
+    "purescript-flare": "^2.0.0",
     "purescript-proxy": "^1.0.0",
-    "purescript-globals": "^1.0.0",
-    "purescript-generics": "^1.0.0"
+    "purescript-globals": "^2.0.0",
+    "purescript-generics": "^3.0.0"
   }
 }
