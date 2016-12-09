@@ -3,6 +3,7 @@
 A library to create interactive test suites for PureScript functions.
 
 - **[Live demo and tutorial](http://sharkdp.github.io/purescript-flarecheck/)**
+- [Try Flare](http://try.purescript.org/?backend=flare) - Write and compile FlareCheck UIs in your browser
 - [Talk](https://www.youtube.com/watch?v=iTSosG7vUyI) - A talk I gave about Flare and FlareCheck at LambdaConf 2016
 - [Module documentation](http://pursuit.purescript.org/packages/purescript-flarecheck/)
 - [Flare: underlying UI library](https://github.com/sharkdp/purescript-flare)
