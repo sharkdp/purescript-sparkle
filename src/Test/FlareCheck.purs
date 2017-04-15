@@ -199,7 +199,9 @@ interactiveShow :: forall t e. (Show t) => UI e t -> UI e Renderable
 interactiveShow = map (SetText <<< show)
 
 -- | A default `interactive` implementation for `Foldable` types.
-interactiveFoldable :: forall f a e. (Foldable f, Generic a)
+interactiveFoldable :: forall f a e
+                     . Foldable f
+                    => Generic a
                     => UI e (f a)
                     -> UI e Renderable
 interactiveFoldable = map (SetHTML <<< H.pre <<< markup)

@@ -102,7 +102,7 @@ main = do
   fc "Nested 1" (Just (Tuple 3 "foo"))
   fc "Nested 2" (Tuple 1 (Tuple 2 (Tuple 3 (Tuple 4 false))))
   fc "Nested Arrays" [[[[1], [2,3]], [[4]]]]
-  fc "Records" (Foo { num: 42.3, str: "foo", bool: false, optional: Just '🔥', arr: [2, 17] })
+  fc "Records" (Foo { num: 42.3, str: "foo", bool: false, optional: Just '☀', arr: [2, 17] })
   fc "NonNegativeInt" (\(NonNegativeInt x) -> x)
   fc "SmallInt" (\(SmallInt x) -> x)
   fc "SmallNumber" (\(SmallNumber x) -> x)
