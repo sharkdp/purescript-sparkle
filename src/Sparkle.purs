@@ -50,7 +50,7 @@ import Partial.Unsafe (unsafePartial)
 
 import Global (readFloat, isFinite)
 
-import Type.Prelude (class RowToList, class ListToRow)
+import Type.Prelude (class RowToList)
 import Type.Proxy (Proxy(..))
 import Type.Row (kind RowList, class RowLacks, Nil, Cons, RLProxy(..))
 
@@ -106,8 +106,7 @@ instance flammableEither ∷ (Flammable a, Flammable b) ⇒ Flammable (Either a 
           toEither _      _ y = Right y
 
 -- | A helper type class to implement a `Flammable` instance for records.
-class (ListToRow list row, RowToList row list) ⇐
-      FlammableRowList
+class FlammableRowList
         (list ∷ RowList)
         (row ∷ # Type)
         | list → row where
@@ -132,7 +131,7 @@ instance flammableRecord ∷
   ( RowToList row list
   , FlammableRowList list row
   ) ⇒ Flammable (Record row) where
-  spark = fieldset "Record" (sparkRecord (RLProxy :: RLProxy list))
+  spark = fieldset "Record" (sparkRecord (RLProxy ∷ RLProxy list))
 
 -- | A newtype for non-negative integer values.
 newtype NonNegativeInt = NonNegativeInt Int
@@ -381,19 +380,22 @@ instance interactiveFunction ∷ (Flammable a, Interactive b) ⇒ Interactive (a
 -- | Append a new interactive test. The arguments are the ID of the parent element, the title for
 -- | the test, a documentation string and the list of Flare components. Returns the element for the
 -- | output of the test.
-foreign import appendTest ∷ ∀ e. ElementId
+foreign import appendTest ∷ ∀ e
+                          . ElementId
                           → String
                           → String
                           → Array Element
                           → Eff (dom ∷ DOM | e) Element
 
 -- | Write the string to the specified output element.
-foreign import setText ∷ ∀ e. Element
+foreign import setText ∷ ∀ e
+                       . Element
                        → String
                        → Eff (dom ∷ DOM | e) Unit
 
 -- | Set innerHTML of the specified output element.
-foreign import setHTML ∷ ∀ e. Element
+foreign import setHTML ∷ ∀ e
+                       . Element
                        → String
                        → Eff (dom ∷ DOM | e) Unit
 
@@ -406,7 +408,8 @@ render output (SetHTML markup) = setHTML output (H.render markup)
 -- | Run an interactive test. The ID specifies the parent element to which the test will be
 -- | appended and the label provides a title for the test. The String argument is an optional
 -- | documentation string.
-sparkleDoc' ∷ ∀ t e. (Interactive t)
+sparkleDoc' ∷ ∀ t e
+            . Interactive t
             ⇒ ElementId
             → Label
             → Maybe String
@@ -421,7 +424,8 @@ sparkleDoc' parentId title doc x = do
 
 -- | Run an interactive test. The label provides a title for the test. The `String` argument is an
 -- | optional documentation string.
-sparkleDoc ∷ ∀ t e. (Interactive t)
+sparkleDoc ∷ ∀ t e
+           . Interactive t
            ⇒ Label
            → Maybe String
            → t
@@ -430,7 +434,8 @@ sparkleDoc = sparkleDoc' "tests"
 
 -- | Run an interactive test. The ID specifies the parent element to which the test will be
 -- | appended and the label provides a title for the test.
-sparkle' ∷ ∀ t e. (Interactive t)
+sparkle' ∷ ∀ t e
+         . Interactive t
          ⇒ ElementId
          → Label
          → t
@@ -438,7 +443,8 @@ sparkle' ∷ ∀ t e. (Interactive t)
 sparkle' id label = sparkleDoc' id label Nothing
 
 -- | Run an interactive test. The label provides a title for the test.
-sparkle ∷ ∀ t e. (Interactive t)
+sparkle ∷ ∀ t e
+        . Interactive t
         ⇒ Label
         → t
         → Eff (channel ∷ CHANNEL, dom ∷ DOM | e) Unit
