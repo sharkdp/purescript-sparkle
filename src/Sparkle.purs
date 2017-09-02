@@ -2,12 +2,10 @@
 -- | signatures.
 module Sparkle
   ( class Flammable
+  , examples
   , spark
-  , class Read
-  , typeName
-  , defaults
-  , read
   , class FlammableRowList
+  , examplesRecord
   , sparkRecord
   , NonNegativeInt(..)
   , SmallInt(..)
@@ -40,15 +38,17 @@ import Data.Enum (class BoundedEnum, succ, enumFromTo)
 import Data.Foldable (class Foldable, for_, intercalate)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
-import Data.List (List(..), (:), fromFoldable)
+import Data.List (List(..), (:), fromFoldable, singleton)
+import Data.List.NonEmpty (NonEmptyList(..), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.NonEmpty ((:|))
+import Data.NonEmpty (NonEmpty, (:|))
 import Data.Number.Format (toStringWith, precision)
 import Data.Record (insert, get, delete)
 import Data.String (Pattern(..), split, length, charAt, joinWith)
+import Data.String as S
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..))
-import Color (Color, hsl, cssStringHSLA, toHSLA)
+import Color (Color, hsl, cssStringHSLA, toHSLA, black)
 
 import Partial.Unsafe (unsafePartial)
 
@@ -71,55 +71,75 @@ import Text.Smolder.Renderer.String (render) as H
 
 import Signal (runSignal)
 import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup, boolean,
-              stringPattern, int, intRange, intSlider, number, numberSlider, select, color)
+              stringPattern, int, intRange, intSlider, number, numberSlider, select, color,
+              resizableList_, textarea)
 
 -- | A type class for data types that can be used for interactive Sparkle UIs. Instances for type
 -- | `a` must provide a way to create a Flare UI which holds a value of type `a`.
 class Flammable a where
-  spark ∷ ∀ e. UI e a
+  examples ∷ NonEmpty List a
+  spark ∷ ∀ e. a → UI e a
 
 instance flammableNumber ∷ Flammable Number where
-  spark = number "Number" 3.14
+  examples = 3.14 :| 42.0 : -1.0 : 1.0e5 : Nil
+  spark = number "Number"
 
 instance flammableInt ∷ Flammable Int where
-  spark = int "Int" 1
+  examples = 1 :| 42 : -200 : 1337 : 0 : Nil
+  spark = int "Int"
 
 instance flammableString ∷ Flammable String where
-  spark = string "String" "foo"
+  examples = "foo" :| "bar" : "I ❤ unicode" : Nil
+  spark = string "String"
 
 instance flammableChar ∷ Flammable Char where
-  spark = fromMaybe ' ' <$> charAt 0 <$> stringPattern "Char" "^.$" "f"
+  examples = 'f' :| '#' : 'K' : Nil
+  spark default = fromMaybe ' ' <$> charAt 0 <$> stringPattern "Char" "^.$" (S.singleton default)
 
 instance flammableBoolean ∷ Flammable Boolean where
-  spark = boolean "Boolean" false
+  examples = false :| true : Nil
+  spark = boolean "Boolean"
+
+head ∷ ∀ a. NonEmpty List a → a
+head (x :| _) = x
 
 instance flammableTuple ∷ (Flammable a, Flammable b) ⇒ Flammable (Tuple a b) where
-  spark = fieldset "Tuple" $ Tuple <$> spark <*> spark
+  examples = Tuple (head examples) (head examples) :| Nil
+  spark (Tuple a b) = fieldset "Tuple" $ Tuple <$> spark a <*> spark b
 
 instance flammableMaybe ∷ (Flammable a) ⇒ Flammable (Maybe a) where
-  spark = fieldset "Maybe" $ toMaybe <$> boolean "Just" true <*> spark
+  examples = Just (head examples) :| Nothing : Nil
+  spark init = fieldset "Maybe" $ toMaybe <$> boolean "Just" (isJust init) <*> spark (default init)
     where toMaybe true x  = Just x
           toMaybe false _ = Nothing
+          isJust (Just _) = true
+          isJust Nothing = false
+          default (Just a) = a
+          default Nothing = head examples
 
 instance flammableEither ∷ (Flammable a, Flammable b) ⇒ Flammable (Either a b) where
-  spark = fieldset "Either" $
-            toEither <$> radioGroup "Select:" ("Left" :| ["Right"]) id
-                     <*> spark
-                     <*> spark
+  examples = Left (head examples) :| Right (head examples) : Nil
+  spark _ = fieldset "Either" $
+              toEither <$> radioGroup "Select:" ("Left" :| ["Right"]) id
+                       <*> spark (head examples)
+                       <*> spark (head examples)
     where toEither "Left" x _ = Left x
           toEither _      _ y = Right y
 
 instance flammableColor ∷ Flammable Color where
-  spark = color "Color" (hsl 240.0 1.0 0.5)
+  examples = hsl 240.0 1.0 0.5 :| hsl 120.0 0.7 0.8 : black : Nil
+  spark = color "Color"
 
 -- | A helper type class to implement a `Flammable` instance for records.
 class FlammableRowList
         (list ∷ RowList)
         (row ∷ # Type)
         | list → row where
+  examplesRecord ∷ RLProxy list → NonEmpty List (Record row)
   sparkRecord ∷ ∀ e. RLProxy list → UI e (Record row)
 
 instance flammableListNil ∷ FlammableRowList Nil () where
+  examplesRecord _ = {} :| Nil
   sparkRecord _ = pure {}
 
 instance flammableListCons ∷
@@ -130,100 +150,79 @@ instance flammableListCons ∷
   , RowToList rowFull (Cons s a listRest)
   , IsSymbol s
   ) ⇒ FlammableRowList (Cons s a listRest) rowFull where
+  examplesRecord _ = insert (SProxy ∷ SProxy s)
+                           (head examples ∷ a)
+                           (head (examplesRecord (RLProxy ∷ RLProxy listRest)) ∷ Record rowRest) :| Nil
   sparkRecord _ = insert (SProxy ∷ SProxy s)
-                    <$> fieldset (reflectSymbol (SProxy ∷ SProxy s)) spark
+                    <$> fieldset (reflectSymbol (SProxy ∷ SProxy s)) (spark (head examples))
                     <*> (sparkRecord (RLProxy ∷ RLProxy listRest) ∷ ∀ e. UI e (Record rowRest))
 
 instance flammableRecord ∷
   ( RowToList row list
   , FlammableRowList list row
   ) ⇒ Flammable (Record row) where
-  spark = fieldset "Record" (sparkRecord (RLProxy ∷ RLProxy list))
+  examples = examplesRecord (RLProxy ∷ RLProxy list)
+  spark _ = fieldset "Record" (sparkRecord (RLProxy ∷ RLProxy list))
 
 -- | A newtype for non-negative integer values.
 newtype NonNegativeInt = NonNegativeInt Int
 
+derive instance genericNonNegativeInt ∷ Generic NonNegativeInt
+
 instance flammableNonNegativeInt ∷ Flammable NonNegativeInt where
-  spark = NonNegativeInt <$> intRange "Int" 0 top 1
+  examples = NonNegativeInt 1 :| NonNegativeInt 500 : Nil
+  spark (NonNegativeInt d) = NonNegativeInt <$> intRange "Int" 0 top d
 
 -- | A newtype for small integer values in the range from 0 to 100.
 newtype SmallInt = SmallInt Int
 
+derive instance genericSmallInt ∷ Generic SmallInt
+
 instance flammableSmallInt ∷ Flammable SmallInt where
-  spark = SmallInt <$> intSlider "Int" 0 100 1
+  examples = SmallInt 1 :| SmallInt 50 : Nil
+  spark (SmallInt d) = SmallInt <$> intSlider "Int" 0 100 d
 
 -- | A newtype for numbers in the closed interval from 0.0 and 1.0.
 newtype SmallNumber = SmallNumber Number
 
+derive instance genericSmallNumber ∷ Generic SmallNumber
+
 instance flammableSmallNumber ∷ Flammable SmallNumber where
-  spark = SmallNumber <$> numberSlider "Number" 0.0 1.0 0.00001 0.5
+  examples = SmallNumber 0.5 :| SmallNumber 0.0 : SmallNumber 0.9 : Nil
+  spark (SmallNumber d) = SmallNumber <$> numberSlider "Number" 0.0 1.0 0.00001 d
 
 -- | A newtype for strings where "\n" is parsed as a newline
 -- | (instead of "\\n").
 newtype Multiline = Multiline String
 
+derive instance genericMultiline ∷ Generic Multiline
+
 instance flammableMultiline ∷ Flammable Multiline where
-  spark = Multiline <$> toNewlines <$> string "String" "foo\\nbar"
-    where
-      toNewlines = split (Pattern "\\n") >>> joinWith "\n"
+  examples = Multiline "foo\nbar" :| Nil
+  spark (Multiline d) = Multiline <$> textarea "Multiline" d
 
 newtype WrapEnum a = WrapEnum a
 
 instance flammableWrapEnum ∷ (BoundedEnum a, Show a) ⇒ Flammable (WrapEnum a) where
-  spark = WrapEnum <$> select "Enum" (bottom :| rest) show
+  examples = WrapEnum bottom :| WrapEnum top : Nil
+  spark _ = WrapEnum <$> select "Enum" (bottom :| rest) show
     where
       rest ∷ Array a
       rest = fromMaybe [] do
         mSucc ← succ bottom
         pure (enumFromTo mSucc top)
 
--- | A class for types which can be parsed from a `String`. This class is used to construct input
--- | fields for `Array a` and `List a`.
-class Read a where
-  typeName ∷ Proxy a → String
-  defaults ∷ Proxy a → String
-  read ∷ String → Maybe a
+instance flammableList ∷ Flammable a ⇒ Flammable (List a) where
+  examples = singleton (head examples) :| Nil
+  spark _ = fieldset "List" (resizableList_ spark
+                                            (head examples)
+                                            (toList (NonEmptyList examples)))
 
-instance readNumber ∷ Read Number where
-  typeName _ = "Number"
-  defaults _ = "0.0,1.1,3.14"
-  read str = if isFinite n then (Just n) else Nothing
-    where n = readFloat str
-
-instance readInt ∷ Read Int where
-  typeName _ = "Int"
-  defaults _ = "0,1,2"
-  read = fromString
-
-instance readString ∷ Read String where
-  typeName _ = "String"
-  defaults _ = "foo,bar,baz"
-  read = Just
-
-instance readChar ∷ Read Char where
-  typeName _ = "Char"
-  defaults _ = "f,o,o"
-  read = charAt 0
-
-instance readBool ∷ Read Boolean where
-  typeName _ = "Boolean"
-  defaults _ = "true,false"
-  read "true"  = Just true
-  read "false" = Just false
-  read _       = Nothing
-
--- | A UI for comma-separated values.
-csvUI ∷ ∀ a e. (Read a) ⇒ UI e (Array a)
-csvUI = (A.catMaybes <<< map read <<< split (Pattern ",")) <$> string "CSV:" defaults'
-  where defaults' = defaults (Proxy ∷ Proxy a)
-
-instance flammableArrayRead ∷ (Read a) ⇒ Flammable (Array a) where
-  spark = fieldset ("Array " <> typeName') csvUI
-    where typeName' = typeName (Proxy ∷ Proxy a)
-
-instance flammableListRead ∷ (Read a) ⇒ Flammable (List a) where
-  spark = fieldset ("List " <> typeName') (fromFoldable <$> csvUI)
-    where typeName' = typeName (Proxy ∷ Proxy a)
+instance flammableArray ∷ Flammable a ⇒ Flammable (Array a) where
+  examples = [head examples] :| Nil
+  spark _ = A.fromFoldable <$> fieldset "Array" (resizableList_ spark
+                                                                (head examples)
+                                                                (toList (NonEmptyList (examples :: NonEmpty List a))))
 
 -- | A data type that describes possible output actions and values for an interactive test.
 data Renderable
@@ -440,7 +439,7 @@ instance interactiveWrapEnum ∷ Generic a ⇒ Interactive (WrapEnum a) where
     where unwrap (WrapEnum e) = e
 
 instance interactiveFunction ∷ (Flammable a, Interactive b) ⇒ Interactive (a → b) where
-  interactive f = interactive (f <*> spark)
+  interactive f = interactive (f <*> spark (head examples))
 
 -- | Append a new interactive test. The arguments are the ID of the parent element, the title for
 -- | the test, a documentation string and the list of Flare components. Returns the element for the

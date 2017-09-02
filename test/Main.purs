@@ -7,8 +7,9 @@ import Data.Either (Either, fromRight)
 import Data.Enum (class Enum, class BoundedEnum, defaultSucc, defaultPred, Cardinality(..))
 import Data.Generic (class Generic, gShow)
 import Data.Int (even)
-import Data.List (List())
+import Data.List (List(..))
 import Data.Maybe (Maybe(..), fromMaybe)
+import Data.NonEmpty ((:|))
 import Data.String (length, charCodeAt, joinWith)
 import Data.String.Regex (Regex(), regex, parseFlags, match)
 import Data.Tuple (Tuple(..))
@@ -22,9 +23,10 @@ import Sparkle (class Flammable, class Interactive, sparkle', NonNegativeInt(..)
 newtype TRegex = TRegex Regex
 
 instance flammableTRegex ∷ Flammable TRegex where
-  spark = fieldset "Regex" $ TRegex <$>
-            (regex' <$> string "Pattern" "fo+"
-                    <*> (parseFlags <$> string "Flags (g,i,m)" "g"))
+  examples = TRegex (unsafePartial $ fromRight (regex "fo+" (parseFlags "g"))) :| Nil
+  spark _ = fieldset "Regex" $ TRegex <$>
+              (regex' <$> string "Pattern" "fo+"
+                      <*> (parseFlags <$> string "Flags (g,i,m)" "g"))
     where regex' pattern flags = unsafePartial $ fromRight (regex pattern flags)
 
 type Foo = { num ∷ Number
@@ -91,7 +93,7 @@ main = do
   fc "Tuple Int String" (id ∷ Tuple Int String → _)
   fc "Array Int" (id ∷ Array Int → _)
   fc "Array String" (id ∷ Array String → _)
-  fc "List Int" (id ∷ List Int → _)
+  fc "List Int" (id ∷ List SmallNumber → _)
   fc "List String" (id ∷ List String → _)
   fc "Color" (id ∷ Color → _)
   fc "Nested 1" (Just (Tuple 3 "foo"))
