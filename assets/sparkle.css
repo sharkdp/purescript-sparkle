@@ -97,6 +97,13 @@ fieldset.sparkle-test > legend {
     font-style: italic;
 }
 
+.sparkle-color {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.5em;
+    display: inline-block;
+}
+
 .sparkle-tooltip {
     cursor: default;
 }

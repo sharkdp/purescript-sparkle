@@ -43,10 +43,12 @@ import Data.Int (fromString)
 import Data.List (List(..), (:), fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.NonEmpty ((:|))
+import Data.Number.Format (toStringWith, precision)
 import Data.Record (insert, get, delete)
 import Data.String (Pattern(..), split, length, charAt, joinWith)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..))
+import Color (Color, hsl, cssStringHSLA, toHSLA)
 
 import Partial.Unsafe (unsafePartial)
 
@@ -63,13 +65,13 @@ import DOM.Node.Types (Element())
 
 import Text.Smolder.Markup (Markup, text) as H
 import Text.Smolder.Markup ((!))
-import Text.Smolder.HTML (pre, span) as H
+import Text.Smolder.HTML (pre, span, div) as H
 import Text.Smolder.HTML.Attributes as HA
 import Text.Smolder.Renderer.String (render) as H
 
 import Signal (runSignal)
 import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup, boolean,
-              stringPattern, int, intRange, intSlider, number, numberSlider, select)
+              stringPattern, int, intRange, intSlider, number, numberSlider, select, color)
 
 -- | A type class for data types that can be used for interactive Sparkle UIs. Instances for type
 -- | `a` must provide a way to create a Flare UI which holds a value of type `a`.
@@ -106,6 +108,9 @@ instance flammableEither ∷ (Flammable a, Flammable b) ⇒ Flammable (Either a 
                      <*> spark
     where toEither "Left" x _ = Left x
           toEither _      _ y = Right y
+
+instance flammableColor ∷ Flammable Color where
+  spark = color "Color" (hsl 240.0 1.0 0.5)
 
 -- | A helper type class to implement a `Flammable` instance for records.
 class FlammableRowList
@@ -371,6 +376,18 @@ instance interactiveArray ∷ Generic a ⇒ Interactive (Array a) where
 
 instance interactiveList ∷ Generic a ⇒ Interactive (List a) where
   interactive = interactiveFoldable
+
+instance interactiveColor ∷ Interactive Color where
+  interactive = map (SetHTML <<< markup)
+    where
+      markup c =
+        let cssHSLA = cssStringHSLA c
+            style = "background-color: " <> cssHSLA
+            col = toHSLA c
+            showN = toStringWith (precision 4)
+        in H.pre $ do
+          H.div ! HA.style style ! HA.className "sparkle-color" $ H.text ""
+          H.text $ "(Color.hsl " <> showN col.h <> " " <> showN col.s <> " " <> showN col.l <> ")"
 
 -- | A helper type class to implement an `Interactive` instance for records.
 class PrettyPrintRowList

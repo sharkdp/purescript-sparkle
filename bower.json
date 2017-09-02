@@ -21,6 +21,7 @@
     "purescript-globals": "^3.0.0",
     "purescript-generics": "^4.0.0",
     "purescript-record": "^0.2.0",
-    "purescript-typelevel-prelude": "^2.4.0"
+    "purescript-typelevel-prelude": "^2.4.0",
+    "purescript-numbers": "^5.0.0"
   }
 }

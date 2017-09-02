@@ -13,6 +13,7 @@ import Data.String (length, charCodeAt, joinWith)
 import Data.String.Regex (Regex(), regex, parseFlags, match)
 import Data.Tuple (Tuple(..))
 import Partial.Unsafe (unsafePartial)
+import Color (Color)
 
 import Flare (fieldset, string)
 import Sparkle (class Flammable, class Interactive, sparkle', NonNegativeInt(..),
@@ -93,6 +94,7 @@ main = do
   fc "Array String" (id ∷ Array String → _)
   fc "List Int" (id ∷ List Int → _)
   fc "List String" (id ∷ List String → _)
+  fc "Color" (id ∷ Color → _)
   fc "Nested 1" (Just (Tuple 3 "foo"))
   fc "Nested 2" (Tuple 1 (Tuple 2 (Tuple 3 (Tuple 4 false))))
   fc "Nested Arrays" [[[[1], [2,3]], [[4]]]]
