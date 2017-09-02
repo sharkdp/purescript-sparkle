@@ -81,7 +81,7 @@ class Flammable a where
   spark ∷ ∀ e. a → UI e a
 
 instance flammableNumber ∷ Flammable Number where
-  examples = 3.14 :| 42.0 : -1.0 : 1.0e5 : Nil
+  examples = 0.618034 :| 3.14 : 42.0 : -1.0 : 1.0e5 : Nil
   spark = number "Number"
 
 instance flammableInt ∷ Flammable Int where
@@ -127,7 +127,7 @@ instance flammableEither ∷ (Flammable a, Flammable b) ⇒ Flammable (Either a 
           toEither _      _ y = Right y
 
 instance flammableColor ∷ Flammable Color where
-  examples = hsl 240.0 1.0 0.5 :| hsl 120.0 0.7 0.8 : black : Nil
+  examples = hsl 216.0 1.0 0.42 :| hsl 120.0 0.7 0.8 : black : Nil
   spark = color "Color"
 
 -- | A helper type class to implement a `Flammable` instance for records.

@@ -1,4 +1,4 @@
-# Sparkle
+![Sparkle](html/sparkle.svg)
 
 A PureScript library to create reactive web interfaces from type signatures.
 

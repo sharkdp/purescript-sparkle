@@ -26,6 +26,11 @@ a {
     padding: 0 40px;
 }
 
+#logo {
+    width: 400px;
+    margin-top: 40px;
+}
+
 /* Syntax highlighting */
 .LineNr {
     display: none;
