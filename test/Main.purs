@@ -15,9 +15,8 @@ import Data.Tuple (Tuple(..))
 import Partial.Unsafe (unsafePartial)
 
 import Flare (fieldset, string)
-import Sparkle (class Flammable, class Interactive, sparkle',
-                interactiveGeneric, NonNegativeInt(..), SmallInt(..),
-                SmallNumber(..), Multiline(..), WrapEnum)
+import Sparkle (class Flammable, class Interactive, sparkle', NonNegativeInt(..),
+                SmallInt(..), SmallNumber(..), Multiline(..), WrapEnum)
 
 newtype TRegex = TRegex Regex
 
@@ -27,17 +26,12 @@ instance flammableTRegex ∷ Flammable TRegex where
                     <*> (parseFlags <$> string "Flags (g,i,m)" "g"))
     where regex' pattern flags = unsafePartial $ fromRight (regex pattern flags)
 
-newtype Foo = Foo { num ∷ Number
-                  , str ∷ String
-                  , bool ∷ Boolean
-                  , optional ∷ Maybe Char
-                  , arr ∷ Array Int
-                  }
-
-derive instance genericFoo ∷ Generic Foo
-
-instance interactiveFoo ∷ Interactive Foo
-  where interactive = interactiveGeneric
+type Foo = { num ∷ Number
+           , str ∷ String
+           , bool ∷ Boolean
+           , optional ∷ Maybe Char
+           , arr ∷ Array Int
+           }
 
 data TestEnum = Option1 | Option2 | TrueOrFalse Boolean
 
@@ -102,7 +96,7 @@ main = do
   fc "Nested 1" (Just (Tuple 3 "foo"))
   fc "Nested 2" (Tuple 1 (Tuple 2 (Tuple 3 (Tuple 4 false))))
   fc "Nested Arrays" [[[[1], [2,3]], [[4]]]]
-  fc "Records" (Foo { num: 42.3, str: "foo", bool: false, optional: Just '☀', arr: [2, 17] })
+  fc "Records" ({ num: 42.3, str: "foo", bool: false, optional: Just '☀', arr: [2, 17] })
   fc "NonNegativeInt" (\(NonNegativeInt x) → x)
   fc "SmallInt" (\(SmallInt x) → x)
   fc "SmallNumber" (\(SmallNumber x) → x)

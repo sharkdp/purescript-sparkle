@@ -19,6 +19,8 @@ module Sparkle
   , interactiveGeneric
   , interactiveShow
   , interactiveFoldable
+  , class PrettyPrintRowList
+  , prettyPrintRowList
   , Renderable(..)
   , sparkleDoc'
   , sparkleDoc
@@ -38,10 +40,10 @@ import Data.Enum (class BoundedEnum, succ, enumFromTo)
 import Data.Foldable (class Foldable, for_, intercalate)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
 import Data.Int (fromString)
-import Data.List (List(), fromFoldable)
+import Data.List (List(..), (:), fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.NonEmpty ((:|))
-import Data.Record (insert)
+import Data.Record (insert, get, delete)
 import Data.String (Pattern(..), split, length, charAt, joinWith)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..))
@@ -283,9 +285,9 @@ prettyPrec d (SProd s arr) = do
           H.text ")"
 
 prettyPrec d (SRecord arr) = do
-  H.text "{ "
-  intercalate (H.text ", ") (map recEntry arr)
-  H.text " }"
+  H.text "{\n  "
+  intercalate (H.text ",\n  ") (map recEntry arr)
+  H.text "\n}"
     where
       recEntry x = do
         highlight "record-field" x.recLabel
@@ -369,6 +371,52 @@ instance interactiveArray ∷ Generic a ⇒ Interactive (Array a) where
 
 instance interactiveList ∷ Generic a ⇒ Interactive (List a) where
   interactive = interactiveFoldable
+
+-- | A helper type class to implement an `Interactive` instance for records.
+class PrettyPrintRowList
+        (list ∷ RowList)
+        (row ∷ # Type)
+        | list → row where
+  prettyPrintRowList ∷ RLProxy list → Record row → List (Tuple String (H.Markup Unit))
+
+instance prettyPrintRowListNil ∷ PrettyPrintRowList Nil () where
+  prettyPrintRowList _ _ = Nil
+
+instance prettyPrintRowListCons ∷
+  ( Generic a
+  , PrettyPrintRowList listRest rowRest
+  , RowLacks s rowRest
+  , RowCons s a rowRest rowFull
+  , RowToList rowFull (Cons s a listRest)
+  , IsSymbol s
+  ) ⇒ PrettyPrintRowList (Cons s a listRest) rowFull where
+  prettyPrintRowList _ record =
+    Tuple key value : rest
+    where
+      keySymbol = SProxy ∷ SProxy s
+      key = reflectSymbol keySymbol
+      value = prettyPrint (get keySymbol record)
+      rest = prettyPrintRowList (RLProxy ∷ RLProxy listRest) (delete keySymbol record)
+
+instance interactiveRecordInstance ∷
+  ( RowToList row list
+  , PrettyPrintRowList list row
+  ) ⇒ Interactive (Record row) where
+  interactive = map (SetHTML <<< prettyPrintRecord)
+    where
+      prettyPrintRecord ∷ Record row → H.Markup Unit
+      prettyPrintRecord record = H.pre do
+        H.text "{\n  "
+        intercalate (H.text ",\n  ") (map recEntry entries)
+        H.text "\n}"
+
+        where
+          entries = prettyPrintRowList (RLProxy ∷ RLProxy list) record
+
+      recEntry (Tuple label value) = do
+        highlight "record-field" label
+        H.text ": "
+        value
 
 instance interactiveWrapEnum ∷ Generic a ⇒ Interactive (WrapEnum a) where
   interactive = interactiveGeneric <<< map unwrap
