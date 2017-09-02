@@ -14,11 +14,11 @@ import Data.String (length, charCodeAt, joinWith)
 import Data.String.Regex (Regex(), regex, parseFlags, match)
 import Data.Tuple (Tuple(..))
 import Partial.Unsafe (unsafePartial)
-import Color (Color)
+import Color (Color, mix, ColorSpace(..))
 
 import Flare (fieldset, string)
 import Sparkle (class Flammable, class Interactive, sparkle', NonNegativeInt(..),
-                SmallInt(..), SmallNumber(..), Multiline(..), WrapEnum)
+                SmallInt(..), SmallNumber(..), Multiline(..), WrapEnum, sparkleDoc')
 
 newtype TRegex = TRegex Regex
 
@@ -78,6 +78,12 @@ main = do
   sparkle' "tests1" "partition even" (partition even)
 
   sparkle' "tests2" "match" $ \(TRegex regex) string → match regex string
+
+  let mixHSL = mix HSL
+  sparkleDoc' "testsDoc" "mixHSL :: Color -> Color -> Number -> Color"
+    (Just $ "Mix two colors by linearly interpolating between them in the HSL color space. " <>
+            "The shortest path is chosen along the circle of hue values.")
+    (\c1 c2 (SmallNumber n) -> mixHSL c1 c2 n)
 
   let fc ∷ ∀ a. Interactive a => String → a → _
       fc = sparkle' "tests3"

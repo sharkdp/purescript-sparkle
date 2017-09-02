@@ -69,6 +69,11 @@ fieldset.sparkle-test > legend {
     font-weight: 700;
 }
 
+.sparkle-test .flare-input-list button {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
 .sparkle-test .sparkle-okay {
     background-color: #B4DEAF;
 }
