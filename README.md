@@ -1,6 +1,6 @@
 # Sparkle
 
-A library to create interactive test suites for PureScript functions.
+A PureScript library to create reactive web interfaces from type signatures.
 
 - **[Live demo and tutorial](http://sharkdp.github.io/purescript-sparkle/)**
 - [Try Flare](http://try.purescript.org/?backend=flare) - Write and compile Sparkle UIs in your browser
@@ -15,7 +15,7 @@ Suppose you have written a function
 substring :: Int -> Int -> String -> String
 substring start end str = take (end - start) (drop start str)
 ```
-that you want to test. To use Sparkle, you simply call (the first argument is just a title for the test):
+that you want to test. Simply call (the first argument a title for the test):
 ``` purs
 sparkle "substring" substring
 ```
