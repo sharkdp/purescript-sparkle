@@ -30,7 +30,7 @@ Consider the following (hypothetic) function:
 formatNumber :: Number -> Int -> Char -> Boolean -> String
 formatNumber value precision decimalMark isSigned = ...
 ```
-Sparkle can automatically create a user interface for these inputs by calling:
+Sparkle can automatically create a user interface for `formatNumber` by simply calling:
 ``` purs
 sparkle "formatNumber" formatNumber
 ```
@@ -39,6 +39,7 @@ The result looks like this:
 ![Sparkle widget](https://i.imgur.com/xB13OGZ.png)
 
 Notice how each input type (`Number`, `Int`, `Char`, `Boolean`) is represented by an appropriate input field.
+Check out the **[demo page](http://sharkdp.github.io/purescript-sparkle/)** for an interactive version.
 
 ## Quick start
 
