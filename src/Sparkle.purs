@@ -1,3 +1,5 @@
+-- | Sparkle is a library that automatically creates interactive user interfaces from type
+-- | signatures.
 module Sparkle
   ( class Flammable
   , spark
@@ -5,6 +7,8 @@ module Sparkle
   , typeName
   , defaults
   , read
+  , class FlammableRowList
+  , sparkRecord
   , NonNegativeInt(..)
   , SmallInt(..)
   , SmallNumber(..)
@@ -37,14 +41,18 @@ import Data.Int (fromString)
 import Data.List (List(), fromFoldable)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.NonEmpty ((:|))
+import Data.Record (insert)
 import Data.String (Pattern(..), split, length, charAt, joinWith)
+import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..))
 
 import Partial.Unsafe (unsafePartial)
 
 import Global (readFloat, isFinite)
 
+import Type.Prelude (class RowToList, class ListToRow)
 import Type.Proxy (Proxy(..))
+import Type.Row (kind RowList, class RowLacks, Nil, Cons, RLProxy(..))
 
 import Signal.Channel (CHANNEL())
 
@@ -58,9 +66,8 @@ import Text.Smolder.HTML.Attributes as HA
 import Text.Smolder.Renderer.String (render) as H
 
 import Signal (runSignal)
-import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup,
-             boolean, stringPattern, int, intRange, intSlider, number,
-             numberSlider, select)
+import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup, boolean,
+              stringPattern, int, intRange, intSlider, number, numberSlider, select)
 
 -- | A type class for data types that can be used for interactive Sparkle UIs. Instances for type
 -- | `a` must provide a way to create a Flare UI which holds a value of type `a`.
@@ -97,6 +104,35 @@ instance flammableEither ∷ (Flammable a, Flammable b) ⇒ Flammable (Either a 
                      <*> spark
     where toEither "Left" x _ = Left x
           toEither _      _ y = Right y
+
+-- | A helper type class to implement a `Flammable` instance for records.
+class (ListToRow list row, RowToList row list) ⇐
+      FlammableRowList
+        (list ∷ RowList)
+        (row ∷ # Type)
+        | list → row where
+  sparkRecord ∷ ∀ e. RLProxy list → UI e (Record row)
+
+instance flammableListNil ∷ FlammableRowList Nil () where
+  sparkRecord _ = pure {}
+
+instance flammableListCons ∷
+  ( Flammable a
+  , FlammableRowList listRest rowRest
+  , RowLacks s rowRest
+  , RowCons s a rowRest rowFull
+  , RowToList rowFull (Cons s a listRest)
+  , IsSymbol s
+  ) ⇒ FlammableRowList (Cons s a listRest) rowFull where
+  sparkRecord _ = insert (SProxy ∷ SProxy s)
+                    <$> fieldset (reflectSymbol (SProxy ∷ SProxy s)) spark
+                    <*> (sparkRecord (RLProxy ∷ RLProxy listRest) ∷ ∀ e. UI e (Record rowRest))
+
+instance flammableRecord ∷
+  ( RowToList row list
+  , FlammableRowList list row
+  ) ⇒ Flammable (Record row) where
+  spark = fieldset "Record" (sparkRecord (RLProxy :: RLProxy list))
 
 -- | A newtype for non-negative integer values.
 newtype NonNegativeInt = NonNegativeInt Int
@@ -230,8 +266,7 @@ constructor long = tooltip modString $ highlight "constructor" name
         then "Data constructor form unknown module"
         else long
 
--- | Pretty print a `GenericSpine`. This is an adapted version of
--- | `Data.Generic.genericShowPrec`.
+-- | Pretty print a `GenericSpine`. This is an adapted version of `Data.Generic.genericShowPrec`.
 prettyPrec ∷ ∀ e. Int → GenericSpine → H.Markup e
 prettyPrec d (SProd s arr) = do
   if (A.null arr)
@@ -306,7 +341,7 @@ instance interactiveBoolean ∷ Interactive Boolean where
 instance interactiveOrdering ∷ Interactive Ordering where
   interactive = interactiveShow
 
-instance genericSpineInteractive ∷ Interactive GenericSpine where
+instance interactiveGenericSpine ∷ Interactive GenericSpine where
   interactive = map (SetHTML <<< H.pre <<< pretty)
 
 instance interactiveMaybe ∷ Generic a ⇒ Interactive (Maybe a) where
@@ -343,9 +378,9 @@ instance interactiveWrapEnum ∷ Generic a ⇒ Interactive (WrapEnum a) where
 instance interactiveFunction ∷ (Flammable a, Interactive b) ⇒ Interactive (a → b) where
   interactive f = interactive (f <*> spark)
 
--- | Append a new interactive test. The arguments are the ID of the parent
--- | element, the title for the test, a documentation string and the list of
--- | Flare components. Returns the element for the output of the test.
+-- | Append a new interactive test. The arguments are the ID of the parent element, the title for
+-- | the test, a documentation string and the list of Flare components. Returns the element for the
+-- | output of the test.
 foreign import appendTest ∷ ∀ e. ElementId
                           → String
                           → String
@@ -368,9 +403,9 @@ render ∷ ∀ e. Element
 render output (SetText str) = setText output str
 render output (SetHTML markup) = setHTML output (H.render markup)
 
--- | Run an interactive test. The ID specifies the parent element to which
--- | the test will be appended and the label provides a title for the test.
--- | The String argument is an optional documentation string.
+-- | Run an interactive test. The ID specifies the parent element to which the test will be
+-- | appended and the label provides a title for the test. The String argument is an optional
+-- | documentation string.
 sparkleDoc' ∷ ∀ t e. (Interactive t)
             ⇒ ElementId
             → Label
@@ -384,8 +419,8 @@ sparkleDoc' parentId title doc x = do
   output ← appendTest parentId title docString components
   runSignal (render output <$> signal)
 
--- | Run an interactive test. The label provides a title for the test. The
--- | String argument is an optional documentation string.
+-- | Run an interactive test. The label provides a title for the test. The `String` argument is an
+-- | optional documentation string.
 sparkleDoc ∷ ∀ t e. (Interactive t)
            ⇒ Label
            → Maybe String
@@ -393,8 +428,8 @@ sparkleDoc ∷ ∀ t e. (Interactive t)
            → Eff (channel ∷ CHANNEL, dom ∷ DOM | e) Unit
 sparkleDoc = sparkleDoc' "tests"
 
--- | Run an interactive test. The ID specifies the parent element to which
--- | the test will be appended and the label provides a title for the test.
+-- | Run an interactive test. The ID specifies the parent element to which the test will be
+-- | appended and the label provides a title for the test.
 sparkle' ∷ ∀ t e. (Interactive t)
          ⇒ ElementId
          → Label
