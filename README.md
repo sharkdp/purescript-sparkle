@@ -17,6 +17,12 @@
 | <a href="http://pursuit.purescript.org/packages/purescript-sparkle/">Documentation</a>
 </p>
 
+<hr>
+
+Sparkle is a library that leverages the power of [PureScripts](http://purescript.org) type system to automatically create user interfaces based on type signatures.
+
+The internal mechanism of this library is similar to [QuickCheck](https://github.com/purescript/purescript-quickcheck). However, instead of using randomly generated input data, Sparkle creates reactive web interfaces for "interactive testing". It uses the [Flare library](https://github.com/sharkdp/purescript-flare) to create those widgets.
+
 ## Examples
 
 Suppose you have a function
