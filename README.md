@@ -1,12 +1,21 @@
-![Sparkle](html/sparkle.svg)
+<div align="center">
+<h1>
+<img src="html/sparkle.svg"
+      alt="Sparkle"
+      width="300">
+</h1>
+</div>
 
-A PureScript library to create reactive web interfaces from type signatures.
+<p align="center">
+<em>Automatically create reactive web interfaces from type signatures.</em>
+</p>
 
-- **[Live demo and tutorial](http://sharkdp.github.io/purescript-sparkle/)**
-- [Talk](https://www.youtube.com/watch?v=iTSosG7vUyI) - LambdaConf 2016 talk about Flare and Sparkle (called FlareCheck back then)
-- [Try Flare](http://try.purescript.org/?backend=flare) - Write and compile Sparkle UIs in your browser
-- [Module documentation](http://pursuit.purescript.org/packages/purescript-sparkle/)
-- [Flare](https://github.com/sharkdp/purescript-flare) - The underlying UI library
+<p align="center">
+<b><a href="http://sharkdp.github.io/purescript-sparkle/">Live demo and tutorial</a></b>
+| <a href="https://www.youtube.com/watch?v=iTSosG7vUyI">Conference talk</a>
+| <a href="http://try.purescript.org/?backend=flare">Try in your browser</a>
+| <a href="http://pursuit.purescript.org/packages/purescript-sparkle/">Documentation</a>
+</p>
 
 ## Examples
 
