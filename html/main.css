@@ -1,11 +1,29 @@
 body {
-    margin: 40px;
+    margin: 0;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 18px;
+    width: 100%;
+}
+
+h1, h2, h3 {
+    font-weight: 600;
 }
 
 pre {
     background-color: #f0f0f0;
-    padding: 10px;
+    padding: 1em;
     max-width: 800px;
+    border-radius: 5px;
+}
+
+a {
+    color: #1237E0;
+}
+
+#content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 40px;
 }
 
 /* Syntax highlighting */
@@ -28,10 +46,18 @@ pre {
 .Delimiter {
 }
 
-.Structure {
+.Structure, .Keyword {
     font-weight: 700;
 }
 
-.PreProc {
+.PreProc, .Type {
     color: #1237E0;
+}
+
+.Function {
+    color: #223498;
+}
+
+.Identifier {
+    color: #e21077;
 }

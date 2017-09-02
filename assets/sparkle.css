@@ -4,7 +4,7 @@
 .sparkle-test label,
 .sparkle-test legend,
 .sparkle-test select {
-    font-family: 'Source Code Pro', courier;
+    font-family: 'Source Code Pro', monospace;
 }
 
 fieldset.sparkle-test {

@@ -2,7 +2,7 @@ module Test.Main where
 
 import Prelude
 
-import Data.Array (filter)
+import Data.Array (partition)
 import Data.Either (Either, fromRight)
 import Data.Enum (class Enum, class BoundedEnum, defaultSucc, defaultPred, Cardinality(..))
 import Data.Generic (class Generic, gShow)
@@ -70,11 +70,10 @@ instance boundedEnumTestEnum ∷ BoundedEnum TestEnum where
   toEnum = testToEnum
 
 main = do
-  sparkle' "tests1" "length"      length
-  sparkle' "tests1" "charCodeAt"  charCodeAt
-  sparkle' "tests1" "joinWith"    joinWith
-  sparkle' "tests1" "filter even" (filter even)
-  sparkle' "tests1" "fromMaybe"   (fromMaybe ∷ Number → _)
+  sparkle' "tests1" "length"         length
+  sparkle' "tests1" "charCodeAt"     charCodeAt
+  sparkle' "tests1" "joinWith"       joinWith
+  sparkle' "tests1" "partition even" (partition even)
 
   sparkle' "tests2" "match" $ \(TRegex regex) string → match regex string
 
