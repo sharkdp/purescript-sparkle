@@ -37,14 +37,13 @@ import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, succ, enumFromTo)
 import Data.Foldable (class Foldable, for_, intercalate)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
-import Data.Int (fromString)
-import Data.List (List(..), (:), fromFoldable, singleton)
+import Data.List (List(..), (:), singleton)
 import Data.List.NonEmpty (NonEmptyList(..), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.NonEmpty (NonEmpty, (:|))
 import Data.Number.Format (toStringWith, precision)
 import Data.Record (insert, get, delete)
-import Data.String (Pattern(..), split, length, charAt, joinWith)
+import Data.String (Pattern(..), split, length, charAt)
 import Data.String as S
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..))
@@ -52,10 +51,7 @@ import Color (Color, hsl, cssStringHSLA, toHSLA, black)
 
 import Partial.Unsafe (unsafePartial)
 
-import Global (readFloat, isFinite)
-
 import Type.Prelude (class RowToList)
-import Type.Proxy (Proxy(..))
 import Type.Row (kind RowList, class RowLacks, Nil, Cons, RLProxy(..))
 
 import Signal.Channel (CHANNEL())
