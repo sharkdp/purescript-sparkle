@@ -99,9 +99,10 @@ main = do
   fc "Tuple Int String" (id ∷ Tuple Int String → _)
   fc "Array Int" (id ∷ Array Int → _)
   fc "Array String" (id ∷ Array String → _)
-  fc "List Int" (id ∷ List SmallNumber → _)
+  fc "List SmallNumber" (id ∷ List SmallNumber → _)
   fc "List String" (id ∷ List String → _)
   fc "Color" (id ∷ Color → _)
+  fc "Record" (id ∷ Foo → _)
   fc "Nested 1" (Just (Tuple 3 "foo"))
   fc "Nested 2" (Tuple 1 (Tuple 2 (Tuple 3 (Tuple 4 false))))
   fc "Nested Arrays" [[[[1], [2,3]], [[4]]]]
