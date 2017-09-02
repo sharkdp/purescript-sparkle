@@ -3,27 +3,27 @@
 A PureScript library to create reactive web interfaces from type signatures.
 
 - **[Live demo and tutorial](http://sharkdp.github.io/purescript-sparkle/)**
+- [Talk](https://www.youtube.com/watch?v=iTSosG7vUyI) - LambdaConf 2016 talk about Flare and Sparkle (called FlareCheck back then)
 - [Try Flare](http://try.purescript.org/?backend=flare) - Write and compile Sparkle UIs in your browser
-- [Talk](https://www.youtube.com/watch?v=iTSosG7vUyI) - A talk I gave about Flare and Sparkle (called FlareCheck back then) at LambdaConf 2016
 - [Module documentation](http://pursuit.purescript.org/packages/purescript-sparkle/)
-- [Flare: underlying UI library](https://github.com/sharkdp/purescript-flare)
+- [Flare](https://github.com/sharkdp/purescript-flare) - The underlying UI library
 
-## Usage
+## Examples
 
-Suppose you have written a function
+Suppose you have a function
 ``` purs
 substring :: Int -> Int -> String -> String
 substring start end str = take (end - start) (drop start str)
 ```
-that you want to test. Simply call (the first argument a title for the test):
+that takes two integers and a string. Sparkle can automatically create a user interface for these inputs by calling:
 ``` purs
 sparkle "substring" substring
 ```
-This automatically creates an interactive testing environment (see [demo page](http://sharkdp.github.io/purescript-sparkle/) for a working version) like this:
+The result looks like this:
 
 [![](http://i.imgur.com/AxnoA5j.png)](http://sharkdp.github.io/purescript-sparkle/)
 
-Notice how the type information is used to create appropriate input fields for `Int` and `String`. Similarly, calling
+Similarly, calling
 ```purs
 sparkle "filter even" (filter even)
 ```
