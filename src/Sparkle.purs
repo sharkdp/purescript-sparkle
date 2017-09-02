@@ -39,6 +39,7 @@ import Data.Maybe (Maybe(..), fromMaybe)
 import Data.NonEmpty ((:|))
 import Data.String (Pattern(..), split, length, charAt, joinWith)
 import Data.Tuple (Tuple(..))
+
 import Partial.Unsafe (unsafePartial)
 
 import Global (readFloat, isFinite)
@@ -61,36 +62,35 @@ import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup,
              boolean, stringPattern, int, intRange, intSlider, number,
              numberSlider, select)
 
--- | A type class for input parameters for interactive tests. Instances for
--- | type `a` must provide a way to create a Flare UI which holds a value of
--- | type `a`.
+-- | A type class for data types that can be used for interactive Sparkle UIs. Instances for type
+-- | `a` must provide a way to create a Flare UI which holds a value of type `a`.
 class Flammable a where
-  spark :: forall e. UI e a
+  spark ∷ ∀ e. UI e a
 
-instance flammableNumber :: Flammable Number where
+instance flammableNumber ∷ Flammable Number where
   spark = number "Number" 3.14
 
-instance flammableInt :: Flammable Int where
+instance flammableInt ∷ Flammable Int where
   spark = int "Int" 1
 
-instance flammableString :: Flammable String where
+instance flammableString ∷ Flammable String where
   spark = string "String" "foo"
 
-instance flammableChar :: Flammable Char where
+instance flammableChar ∷ Flammable Char where
   spark = fromMaybe ' ' <$> charAt 0 <$> stringPattern "Char" "^.$" "f"
 
-instance flammableBoolean :: Flammable Boolean where
+instance flammableBoolean ∷ Flammable Boolean where
   spark = boolean "Boolean" false
 
-instance flammableTuple :: (Flammable a, Flammable b) => Flammable (Tuple a b) where
+instance flammableTuple ∷ (Flammable a, Flammable b) ⇒ Flammable (Tuple a b) where
   spark = fieldset "Tuple" $ Tuple <$> spark <*> spark
 
-instance flammableMaybe :: (Flammable a) => Flammable (Maybe a) where
+instance flammableMaybe ∷ (Flammable a) ⇒ Flammable (Maybe a) where
   spark = fieldset "Maybe" $ toMaybe <$> boolean "Just" true <*> spark
     where toMaybe true x  = Just x
           toMaybe false _ = Nothing
 
-instance flammableEither :: (Flammable a, Flammable b) => Flammable (Either a b) where
+instance flammableEither ∷ (Flammable a, Flammable b) ⇒ Flammable (Either a b) where
   spark = fieldset "Either" $
             toEither <$> radioGroup "Select:" ("Left" :| ["Right"]) id
                      <*> spark
@@ -101,109 +101,108 @@ instance flammableEither :: (Flammable a, Flammable b) => Flammable (Either a b)
 -- | A newtype for non-negative integer values.
 newtype NonNegativeInt = NonNegativeInt Int
 
-instance flammableNonNegativeInt :: Flammable NonNegativeInt where
+instance flammableNonNegativeInt ∷ Flammable NonNegativeInt where
   spark = NonNegativeInt <$> intRange "Int" 0 top 1
 
 -- | A newtype for small integer values in the range from 0 to 100.
 newtype SmallInt = SmallInt Int
 
-instance flammableSmallInt :: Flammable SmallInt where
+instance flammableSmallInt ∷ Flammable SmallInt where
   spark = SmallInt <$> intSlider "Int" 0 100 1
 
 -- | A newtype for numbers in the closed interval from 0.0 and 1.0.
 newtype SmallNumber = SmallNumber Number
 
-instance flammableSmallNumber :: Flammable SmallNumber where
+instance flammableSmallNumber ∷ Flammable SmallNumber where
   spark = SmallNumber <$> numberSlider "Number" 0.0 1.0 0.00001 0.5
 
 -- | A newtype for strings where "\n" is parsed as a newline
 -- | (instead of "\\n").
 newtype Multiline = Multiline String
 
-instance flammableMultiline :: Flammable Multiline where
+instance flammableMultiline ∷ Flammable Multiline where
   spark = Multiline <$> toNewlines <$> string "String" "foo\\nbar"
     where
       toNewlines = split (Pattern "\\n") >>> joinWith "\n"
 
 newtype WrapEnum a = WrapEnum a
 
-instance flammableWrapEnum :: (BoundedEnum a, Show a) => Flammable (WrapEnum a) where
+instance flammableWrapEnum ∷ (BoundedEnum a, Show a) ⇒ Flammable (WrapEnum a) where
   spark = WrapEnum <$> select "Enum" (bottom :| rest) show
     where
-      rest :: Array a
+      rest ∷ Array a
       rest = fromMaybe [] do
-        mSucc <- succ bottom
+        mSucc ← succ bottom
         pure (enumFromTo mSucc top)
 
--- | A class for types which can be parsed from a `String`. This class is used
--- | to construct input fields for `Array a` and `List a`.
+-- | A class for types which can be parsed from a `String`. This class is used to construct input
+-- | fields for `Array a` and `List a`.
 class Read a where
-  typeName :: Proxy a -> String
-  defaults :: Proxy a -> String
-  read :: String -> Maybe a
+  typeName ∷ Proxy a → String
+  defaults ∷ Proxy a → String
+  read ∷ String → Maybe a
 
-instance readNumber :: Read Number where
+instance readNumber ∷ Read Number where
   typeName _ = "Number"
   defaults _ = "0.0,1.1,3.14"
   read str = if isFinite n then (Just n) else Nothing
     where n = readFloat str
 
-instance readInt :: Read Int where
+instance readInt ∷ Read Int where
   typeName _ = "Int"
   defaults _ = "0,1,2"
   read = fromString
 
-instance readString :: Read String where
+instance readString ∷ Read String where
   typeName _ = "String"
   defaults _ = "foo,bar,baz"
   read = Just
 
-instance readChar :: Read Char where
+instance readChar ∷ Read Char where
   typeName _ = "Char"
   defaults _ = "f,o,o"
   read = charAt 0
 
-instance readBool :: Read Boolean where
+instance readBool ∷ Read Boolean where
   typeName _ = "Boolean"
   defaults _ = "true,false"
   read "true"  = Just true
   read "false" = Just false
   read _       = Nothing
 
--- | A UI for comma separated values.
-csvUI :: forall a e. (Read a) => UI e (Array a)
+-- | A UI for comma-separated values.
+csvUI ∷ ∀ a e. (Read a) ⇒ UI e (Array a)
 csvUI = (A.catMaybes <<< map read <<< split (Pattern ",")) <$> string "CSV:" defaults'
-  where defaults' = defaults (Proxy :: Proxy a)
+  where defaults' = defaults (Proxy ∷ Proxy a)
 
-instance flammableArrayRead :: (Read a) => Flammable (Array a) where
+instance flammableArrayRead ∷ (Read a) ⇒ Flammable (Array a) where
   spark = fieldset ("Array " <> typeName') csvUI
-    where typeName' = typeName (Proxy :: Proxy a)
+    where typeName' = typeName (Proxy ∷ Proxy a)
 
-instance flammableListRead :: (Read a) => Flammable (List a) where
+instance flammableListRead ∷ (Read a) ⇒ Flammable (List a) where
   spark = fieldset ("List " <> typeName') (fromFoldable <$> csvUI)
-    where typeName' = typeName (Proxy :: Proxy a)
+    where typeName' = typeName (Proxy ∷ Proxy a)
 
--- | A data type that describes possible output actions and values for an
--- | interactive test.
+-- | A data type that describes possible output actions and values for an interactive test.
 data Renderable
   = SetText String
   | SetHTML (H.Markup Unit)
 
--- | A type class for interactive tests. Instances must provide a way to create
--- | a Flare UI which returns a `Renderable` output.
+-- | A type class for interactive UIs. Instances must provide a way to create a Flare UI which
+-- | returns a `Renderable` output.
 class Interactive t where
-  interactive :: forall e. UI e t -> UI e Renderable
+  interactive ∷ ∀ e. UI e t → UI e Renderable
 
 -- | A default `interactive` implementation for any `Show`able type.
-interactiveShow :: forall t e. (Show t) => UI e t -> UI e Renderable
+interactiveShow ∷ ∀ t e. (Show t) ⇒ UI e t → UI e Renderable
 interactiveShow = map (SetText <<< show)
 
 -- | A default `interactive` implementation for `Foldable` types.
-interactiveFoldable :: forall f a e
+interactiveFoldable ∷ ∀ f a e
                      . Foldable f
-                    => Generic a
-                    => UI e (f a)
-                    -> UI e Renderable
+                    ⇒ Generic a
+                    ⇒ UI e (f a)
+                    → UI e Renderable
 interactiveFoldable = map (SetHTML <<< H.pre <<< markup)
   where
     markup val = do
@@ -212,16 +211,16 @@ interactiveFoldable = map (SetHTML <<< H.pre <<< markup)
 
 -- | Takes a CSS classname and a `String` and returns a 'syntax highlighted'
 -- | version of the `String`.
-highlight :: forall e. String -> String -> H.Markup e
+highlight ∷ ∀ e. String → String → H.Markup e
 highlight syntaxClass value =
   H.span ! HA.className ("sparkle-" <> syntaxClass) $ H.text value
 
 -- | Add a tooltip to an element.
-tooltip :: forall e. String -> H.Markup e -> H.Markup e
+tooltip ∷ ∀ e. String → H.Markup e → H.Markup e
 tooltip tip = H.span ! HA.className "sparkle-tooltip" ! HA.title tip
 
 -- | Extract the constructor name from a string like `Data.Tuple.Tuple`.
-constructor :: forall e. String -> H.Markup e
+constructor ∷ ∀ e. String → H.Markup e
 constructor long = tooltip modString $ highlight "constructor" name
   where
     parts = split (Pattern ".") long
@@ -233,14 +232,14 @@ constructor long = tooltip modString $ highlight "constructor" name
 
 -- | Pretty print a `GenericSpine`. This is an adapted version of
 -- | `Data.Generic.genericShowPrec`.
-prettyPrec :: forall e. Int -> GenericSpine -> H.Markup e
+prettyPrec ∷ ∀ e. Int → GenericSpine → H.Markup e
 prettyPrec d (SProd s arr) = do
   if (A.null arr)
     then constructor s
     else do
       showParen (d > 10) $ do
         constructor s
-        for_ arr \f -> do
+        for_ arr \f → do
           H.text " "
           prettyPrec 11 (f unit)
   where showParen false x = x
@@ -269,143 +268,143 @@ prettyPrec d (SChar x)     = tooltip tip       $ highlight "string" (show x)
   where tip = "Char (with char code " <> show (toCharCode x) <> ")"
 prettyPrec d (SArray arr)  = tooltip tip $ do
   H.text "["
-  intercalate (H.text ", ") (map (\x -> prettyPrec 0 (x unit)) arr)
+  intercalate (H.text ", ") (map (\x → prettyPrec 0 (x unit)) arr)
   H.text "]"
     where tip = "Array of length " <> show (A.length arr)
 
 -- | Pretty print a `GenericSpine`.
-pretty :: forall e. GenericSpine -> H.Markup e
+pretty ∷ ∀ e. GenericSpine → H.Markup e
 pretty = prettyPrec 0
 
 -- | Pretty print a value which has a `Generic` type.
-prettyPrint :: forall a e. Generic a => a -> H.Markup e
+prettyPrint ∷ ∀ a e. Generic a ⇒ a → H.Markup e
 prettyPrint = toSpine >>> pretty
 
 -- | A default `interactive` implementation for types with a `Generic` instance.
-interactiveGeneric :: forall a e. (Generic a) => UI e a -> UI e Renderable
+interactiveGeneric ∷ ∀ a e. (Generic a) ⇒ UI e a → UI e Renderable
 interactiveGeneric ui = ((SetHTML <<< H.pre <<< prettyPrint) <$> ui)
 
-instance interactiveNumber :: Interactive Number where
+instance interactiveNumber ∷ Interactive Number where
   interactive = interactiveGeneric
 
-instance interactiveInt :: Interactive Int where
+instance interactiveInt ∷ Interactive Int where
   interactive = interactiveGeneric
 
-instance interactiveString :: Interactive String where
+instance interactiveString ∷ Interactive String where
   interactive = interactiveGeneric
 
-instance interactiveChar :: Interactive Char where
+instance interactiveChar ∷ Interactive Char where
   interactive = interactiveGeneric
 
-instance interactiveBoolean :: Interactive Boolean where
+instance interactiveBoolean ∷ Interactive Boolean where
   interactive = map (SetHTML <<< markup)
     where
       classN true  = "sparkle-okay"
       classN false = "sparkle-warn"
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
-instance interactiveOrdering :: Interactive Ordering where
+instance interactiveOrdering ∷ Interactive Ordering where
   interactive = interactiveShow
 
-instance genericSpineInteractive :: Interactive GenericSpine where
+instance genericSpineInteractive ∷ Interactive GenericSpine where
   interactive = map (SetHTML <<< H.pre <<< pretty)
 
-instance interactiveMaybe :: Generic a => Interactive (Maybe a) where
+instance interactiveMaybe ∷ Generic a ⇒ Interactive (Maybe a) where
   interactive = map (SetHTML <<< markup)
     where
       classN Nothing  = "sparkle-warn"
       classN _        = ""
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
-instance interactiveEither :: (Generic a, Generic b) => Interactive (Either a b) where
+instance interactiveEither ∷ (Generic a, Generic b) ⇒ Interactive (Either a b) where
   interactive = map (SetHTML <<< markup)
     where
       classN (Left _) = "sparkle-warn"
       classN _        = ""
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
-instance interactiveTuple :: (Generic a, Generic b) => Interactive (Tuple a b) where
+instance interactiveTuple ∷ (Generic a, Generic b) ⇒ Interactive (Tuple a b) where
   interactive = interactiveGeneric
 
-instance interactiveArray :: Generic a => Interactive (Array a) where
+instance interactiveArray ∷ Generic a ⇒ Interactive (Array a) where
   interactive = map (SetHTML <<< markup)
     where
       classN [] = "sparkle-warn"
       classN _  = ""
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
-instance interactiveList :: Generic a => Interactive (List a) where
+instance interactiveList ∷ Generic a ⇒ Interactive (List a) where
   interactive = interactiveFoldable
 
-instance interactiveWrapEnum :: Generic a => Interactive (WrapEnum a) where
+instance interactiveWrapEnum ∷ Generic a ⇒ Interactive (WrapEnum a) where
   interactive = interactiveGeneric <<< map unwrap
     where unwrap (WrapEnum e) = e
 
-instance interactiveFunction :: (Flammable a, Interactive b) => Interactive (a -> b) where
+instance interactiveFunction ∷ (Flammable a, Interactive b) ⇒ Interactive (a → b) where
   interactive f = interactive (f <*> spark)
 
 -- | Append a new interactive test. The arguments are the ID of the parent
 -- | element, the title for the test, a documentation string and the list of
 -- | Flare components. Returns the element for the output of the test.
-foreign import appendTest :: forall e. ElementId
-                          -> String
-                          -> String
-                          -> Array Element
-                          -> Eff (dom :: DOM | e) Element
+foreign import appendTest ∷ ∀ e. ElementId
+                          → String
+                          → String
+                          → Array Element
+                          → Eff (dom ∷ DOM | e) Element
 
 -- | Write the string to the specified output element.
-foreign import setText :: forall e. Element
-                       -> String
-                       -> Eff (dom :: DOM | e) Unit
+foreign import setText ∷ ∀ e. Element
+                       → String
+                       → Eff (dom ∷ DOM | e) Unit
 
 -- | Set innerHTML of the specified output element.
-foreign import setHTML :: forall e. Element
-                       -> String
-                       -> Eff (dom :: DOM | e) Unit
+foreign import setHTML ∷ ∀ e. Element
+                       → String
+                       → Eff (dom ∷ DOM | e) Unit
 
-render :: forall e. Element
-       -> Renderable
-       -> Eff (dom :: DOM | e) Unit
+render ∷ ∀ e. Element
+       → Renderable
+       → Eff (dom ∷ DOM | e) Unit
 render output (SetText str) = setText output str
 render output (SetHTML markup) = setHTML output (H.render markup)
 
 -- | Run an interactive test. The ID specifies the parent element to which
 -- | the test will be appended and the label provides a title for the test.
 -- | The String argument is an optional documentation string.
-sparkleDoc' :: forall t e. (Interactive t)
-            => ElementId
-            -> Label
-            -> Maybe String
-            -> t
-            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
+sparkleDoc' ∷ ∀ t e. (Interactive t)
+            ⇒ ElementId
+            → Label
+            → Maybe String
+            → t
+            → Eff (channel ∷ CHANNEL, dom ∷ DOM | e) Unit
 sparkleDoc' parentId title doc x = do
   let flare = interactive (pure x)
-  { components, signal } <- setupFlare flare
+  { components, signal } ← setupFlare flare
   let docString = fromMaybe "" doc
-  output <- appendTest parentId title docString components
+  output ← appendTest parentId title docString components
   runSignal (render output <$> signal)
 
 -- | Run an interactive test. The label provides a title for the test. The
 -- | String argument is an optional documentation string.
-sparkleDoc :: forall t e. (Interactive t)
-           => Label
-           -> Maybe String
-           -> t
-           -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
+sparkleDoc ∷ ∀ t e. (Interactive t)
+           ⇒ Label
+           → Maybe String
+           → t
+           → Eff (channel ∷ CHANNEL, dom ∷ DOM | e) Unit
 sparkleDoc = sparkleDoc' "tests"
 
 -- | Run an interactive test. The ID specifies the parent element to which
 -- | the test will be appended and the label provides a title for the test.
-sparkle' :: forall t e. (Interactive t)
-         => ElementId
-         -> Label
-         -> t
-         -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
+sparkle' ∷ ∀ t e. (Interactive t)
+         ⇒ ElementId
+         → Label
+         → t
+         → Eff (channel ∷ CHANNEL, dom ∷ DOM | e) Unit
 sparkle' id label = sparkleDoc' id label Nothing
 
 -- | Run an interactive test. The label provides a title for the test.
-sparkle :: forall t e. (Interactive t)
-        => Label
-        -> t
-        -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
+sparkle ∷ ∀ t e. (Interactive t)
+        ⇒ Label
+        → t
+        → Eff (channel ∷ CHANNEL, dom ∷ DOM | e) Unit
 sparkle = sparkle' "tests"
