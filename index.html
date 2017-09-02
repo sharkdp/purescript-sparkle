@@ -4,118 +4,113 @@
     <meta charset="utf-8" />
     <meta name="author" content="David Peter">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>FlareCheck</title>
+    <title>Sparkle</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700|Noto+Sans:400,400i,700" rel="stylesheet">
     <link href="main.css" rel="stylesheet">
-    <link href="flarecheck.css" rel="stylesheet">
+    <link href="../assets/sparkle.css" rel="stylesheet">
   </head>
-  <body>
-    <a href="https://github.com/sharkdp/purescript-flarecheck" class="github-corner"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+  <body spellcheck="false">
+    <a href="https://github.com/sharkdp/purescript-sparkle" class="github-corner"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
 
-    <h1>FlareCheck</h1>
-    <p>FlareCheck is a library which allows you to create interactive test suites
-    in an easy way.
-    The idea is to use the <a href="https://github.com/sharkdp/purescript-flare">Flare</a>
-    library and the power of PureScripts type system to create interactive
-    testing environments in an easy way.</p>
+    <div id="content">
+    <h1>Sparkle</h1>
+    <p>
+      Sparkle is a library that leverages the power of <a href="http://www.purescript.org/">PureScripts</a> type system to <i>automatically create user interfaces based on type signatures</i>.
+    </p>
 
-    <p>This is in no way a replacement for properly written automated test suites
-    but could be useful for certain scenarios (similar to manual tests in
-    <code>psci</code>).</p>
 
-    <p>The library works in a similar way to QuickCheck, except that it creates
-    reactive web interfaces to test the functions instead of using randomly generated
-    data.</p>
+    <p>
+      The internal mechanism of this library is similar to QuickCheck. However, instead of using
+      randomly generated input data, Sparkle creates reactive web interfaces for "interactive
+      testing". It uses the <a href="https://github.com/sharkdp/purescript-flare">Flare</a> library
+      to create those widgets.
+    </p>
 
     <h2>Examples</h2>
-    We want to create an interactive test suite for the following functions from
-    the standard libraries:
+    <p>To demonstrate the basic functionality of Sparkle, consider these functions from the
+      standard libraries:</p>
 <pre>
-<span id="L29" class="LineNr">29 </span>length <span class="Operator">::</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Int</span>
-<span id="L30" class="LineNr">30 </span>charCodeAt <span class="Operator">::</span> <span class="PreProc">Int</span> <span class="Operator">-&gt;</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Maybe</span> <span class="PreProc">Int</span>
-<span id="L31" class="LineNr">31 </span>joinWith <span class="Operator">::</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Array</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">String</span>
-<span id="L33" class="LineNr">33 </span>filter <span class="Operator">::</span> <span class="Statement">forall</span> a<span class="Operator">.</span> <span class="Delimiter">(</span>a <span class="Operator">-&gt;</span> <span class="PreProc">Boolean</span><span class="Delimiter">)</span> <span class="Operator">-&gt;</span> <span class="PreProc">Array</span> a <span class="Operator">-&gt;</span> <span class="PreProc">Array</span> a
-<span id="L35" class="LineNr">35 </span>fromMaybe <span class="Operator">::</span> <span class="Statement">forall</span> a<span class="Operator">.</span> a <span class="Operator">-&gt;</span> <span class="PreProc">Maybe</span> a <span class="Operator">-&gt;</span> a
+<span id="L1" class="LineNr">1 </span><span class="Function">length</span> <span class="Operator">::</span> <span class="Type">String</span> <span class="Operator">-></span> <span class="Type">Int</span>
+<span id="L2" class="LineNr">2 </span><span class="Function">charCodeAt</span> <span class="Operator">::</span> <span class="Type">Int</span> <span class="Operator">-></span> <span class="Type">String</span> <span class="Operator">-></span> <span class="Type">Maybe</span> <span class="Type">Int</span>
+<span id="L3" class="LineNr">3 </span><span class="Function">joinWith</span> <span class="Operator">::</span> <span class="Type">String</span> <span class="Operator">-></span> <span class="Type">Array</span> <span class="Type">String</span> <span class="Operator">-></span> <span class="Type">String</span>
+<span id="L1" class="LineNr">1 </span><span class="Function">partition</span> <span class="Operator">::</span> <span class="Operator">∀</span> <span class="Identifier">a</span><span class="Delimiter">.</span> <span class="Delimiter">(</span><span class="Identifier">a</span> <span class="Operator">-&gt;</span> <span class="Type">Boolean</span><span class="Delimiter">)</span> <span class="Operator">-&gt;</span> <span class="Type">Array</span> <span class="Identifier">a</span> <span class="Operator">-&gt;</span> <span class="Delimiter">{</span> <span class="Identifier">yes</span> <span class="Operator">::</span> <span class="Type">Array</span> <span class="Identifier">a</span>
+<span id="L2" class="LineNr">2 </span>                                               <span class="Delimiter">,</span> <span class="Identifier">no</span>  <span class="Operator">::</span> <span class="Type">Array</span> <span class="Identifier">a</span> <span class="Delimiter">}</span>
 </pre>
 
-    We simply call the function <code>flareCheck</code> &hellip;
+    <p>To create the interactive user interfaces, the only thing we have to do is to call "<code>sparkle</code>":</p>
 
 <pre>
-<span id="L1" class="LineNr"> 1 </span><span class="Structure">module</span> <span class="PreProc">Test</span><span class="Operator">.</span><span class="PreProc">Main</span> <span class="Structure">where</span>
+<span id="L1" class="LineNr"> 1 </span><span class="Keyword">module</span> <span class="PreProc">Test.Main</span> <span class="Keyword">where</span>
 <span id="L2" class="LineNr"> 2 </span>
-<span id="L3" class="LineNr"> 3 </span><span class="Structure">import</span> <span class="PreProc">Prelude</span>
+<span id="L3" class="LineNr"> 3 </span><span class="Keyword">import</span> <span class="PreProc">Prelude</span>
 <span id="L4" class="LineNr"> 4 </span>
-<span id="L5" class="LineNr"> 5 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">Array</span> <span class="Delimiter">(</span>filter<span class="Delimiter">)</span>
-<span id="L6" class="LineNr"> 6 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">Int</span> <span class="Delimiter">(</span>even<span class="Delimiter">)</span>
-<span id="L7" class="LineNr"> 7 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">Maybe</span> <span class="Delimiter">(</span>fromMaybe<span class="Delimiter">)</span>
-<span id="L8" class="LineNr"> 8 </span><span class="Structure">import</span> <span class="PreProc">Data</span><span class="Operator">.</span><span class="PreProc">String</span> <span class="Delimiter">(</span>length<span class="Delimiter">,</span> charCodeAt<span class="Delimiter">,</span> joinWith<span class="Delimiter">)</span>
-<span id="L10" class="LineNr">10 </span>
-<span id="L11" class="LineNr">11 </span><span class="Structure">import</span> <span class="PreProc">Test</span><span class="Operator">.</span><span class="PreProc">FlareCheck</span>
-<span id="L12" class="LineNr">12 </span>
-<span id="L20" class="LineNr">20 </span>main <span class="Operator">=</span> <span class="Statement">do</span>
-<span id="L21" class="LineNr">21 </span>  flareCheck <span class="String">&quot;length&quot;</span>      length
-<span id="L22" class="LineNr">22 </span>  flareCheck <span class="String">&quot;charCodeAt&quot;</span>  charCodeAt
-<span id="L23" class="LineNr">23 </span>  flareCheck <span class="String">&quot;joinWith&quot;</span>    joinWith
-<span id="L24" class="LineNr">24 </span>  flareCheck <span class="String">&quot;filter even&quot;</span> <span class="Delimiter">(</span>filter even<span class="Delimiter">)</span>
-<span id="L25" class="LineNr">25 </span>  flareCheck <span class="String">&quot;fromMaybe&quot;</span>   <span class="Delimiter">(</span>fromMaybe <span class="Operator">::</span> <span class="PreProc">Number</span> <span class="Operator">-&gt;</span> <span class="Operator">_</span><span class="Delimiter">)</span>
+<span id="L5" class="LineNr"> 5 </span><span class="Keyword">import</span> <span class="PreProc">Data.Array</span> <span class="Delimiter">(</span><span class="Function">partition</span><span class="Delimiter">)</span>
+<span id="L6" class="LineNr"> 6 </span><span class="Keyword">import</span> <span class="PreProc">Data.Int</span> <span class="Delimiter">(</span><span class="Function">even</span><span class="Delimiter">)</span>
+<span id="L8" class="LineNr"> 8 </span><span class="Keyword">import</span> <span class="PreProc">Data.String</span> <span class="Delimiter">(</span><span class="Function">length</span><span class="Delimiter">,</span><span class="Delimiter"> </span><span class="Function">charCodeAt</span><span class="Delimiter">,</span><span class="Delimiter"> </span><span class="Function">joinWith</span><span class="Delimiter">)</span>
+<span id="L9" class="LineNr"> 9 </span>
+<span id="L10" class="LineNr">10 </span><span class="Keyword">import</span> <span class="PreProc">Sparkle</span>
+<span id="L11" class="LineNr">11 </span>
+<span id="L12" class="LineNr">12 </span>main <span class="Operator">=</span> <span class="Statement">do</span>
+<span id="L13" class="LineNr">13 </span>  sparkle <span class="String">&quot;length&quot;</span>         length
+<span id="L14" class="LineNr">14 </span>  sparkle <span class="String">&quot;charCodeAt&quot;</span>     charCodeAt
+<span id="L15" class="LineNr">15 </span>  sparkle <span class="String">&quot;joinWith&quot;</span>       joinWith
+<span id="L16" class="LineNr">16 </span>  sparkle <span class="String">&quot;partition even&quot;</span> <span class="Delimiter">(</span>partition even<span class="Delimiter">)</span>
 </pre>
 
-    &hellip; which creates the following interactive tests:
+    <p>
+      This creates the following widgets for us:
+    </p>
 
     <div id="tests1"></div>
 
-    Notice how the type information is used to automatically create appropriate
-    input fields for <code>String</code>, <code>Int</code>, <code>Number</code>
-    as well as <code>Array String</code> and <code>Maybe Number</code> (we have
-    to use a type annotation for <code>fromMaybe</code> to get a concrete type).
+    Notice how the type signatures are used to automatically create appropriate
+    input fields for <code class="Type">String</code>, <code class="Type">Int</code>, <code class="Type">Array String</code>
+    as well as <code class="Type">Array Int</code>. The type signature
+    of the return types is used for syntax highlighting (and for generating
+    mouse-over hints).
 
     <h2>Custom input fields</h2>
 
     What if you want to test your own library with custom data types? Suppose
     we want to create a test for the following function from <code>Data.String.Regex</code>:
-    <pre><span id="L20" class="LineNr">20 </span>match <span class="Operator">::</span> <span class="PreProc">Regex</span> <span class="Operator">-&gt;</span> <span class="PreProc">String</span> <span class="Operator">-&gt;</span> <span class="PreProc">Maybe</span> <span class="Delimiter">(</span><span class="PreProc">Array</span> <span class="Delimiter">(</span><span class="PreProc">Maybe</span> <span class="PreProc">String</span><span class="Delimiter">))</span></pre>
-    FlareCheck provides the type class <code>Flammable</code> (analogous to QuickChecks <code>Arbitrary</code>):
+    <pre><span id="L1" class="LineNr">1 </span><span class="Function">match</span> <span class="Operator">::</span> <span class="Type">Regex</span> <span class="Operator">-&gt;</span> <span class="Type">String</span> <span class="Operator">-&gt;</span> <span class="Type">Maybe</span> <span class="Delimiter">(</span><span class="Type">Array</span> <span class="Delimiter">(</span><span class="Type">Maybe</span> <span class="Type">String</span><span class="Delimiter">))</span></pre>
+    Sparkle provides the type class <code class="Type">Flammable</code> (analogous to QuickChecks <code class="Type">Arbitrary</code>):
 <pre>
-<span id="L20" class="LineNr">20 </span><span class="Structure">class</span> <span class="PreProc">Flammable</span> a <span class="Structure">where</span>
-<span id="L21" class="LineNr">21 </span>  spark <span class="Operator">::</span> <span class="Statement">forall</span> e<span class="Operator">.</span> <span class="PreProc">UI</span> e a
+<span id="L1" class="LineNr">1 </span><span class="Keyword">class</span> <span class="Type">Flammable</span> <span class="Identifier">a</span> <span class="Keyword">where</span>
+<span id="L2" class="LineNr">2 </span>  <span class="Function">spark</span> <span class="Operator">::</span> <span class="Operator">∀</span> <span class="Identifier">e</span><span class="Delimiter">.</span> <span class="Type">UI</span> <span class="Identifier">e</span> <span class="Identifier">a</span>
 </pre>
-    where instances must provide a way to create a Flare
-    UI which holds a value of type <code>a</code>.<br><br>
+    Instances must provide a way to create a Flare
+    user interface (<code class="Type">UI</code>) which holds a value of type <code class="Identifier">a</code>.<br><br>
 
-    To avoid orphan instances, we create a newtype wrapper and write a <code>Flammable</code>
-    instance for <code>Regex</code>:
+    To avoid orphan instances, we create a newtype wrapper and write a <code class="Type">Flammable</code>
+    instance for the newtype:
 <pre>
-<span id="L13" class="LineNr">13 </span><span class="Structure">newtype</span> <span class="PreProc">TRegex</span> <span class="Operator">=</span> <span class="PreProc">TRegex</span> <span class="PreProc">Regex</span>
-<span id="L14" class="LineNr">14 </span>
-<span id="L15" class="LineNr">15 </span><span class="Structure">instance</span> flammableTRegex <span class="Operator">::</span> <span class="PreProc">Flammable</span> <span class="PreProc">TRegex</span> <span class="Structure">where</span>
-<span id="L16" class="LineNr">16 </span>  spark <span class="Operator">=</span> fieldset <span class="String">&quot;Regex&quot;</span> <span class="Operator">$</span> <span class="PreProc">TRegex</span> <span class="Operator">&lt;$&gt;</span>
-<span id="L17" class="LineNr">17 </span>            <span class="Delimiter">(</span>regex <span class="Operator">&lt;$&gt;</span> string <span class="String">&quot;Pattern&quot;</span> <span class="String">&quot;fo+&quot;</span>
-<span id="L18" class="LineNr">18 </span>                   <span class="Operator">&lt;*&gt;</span> <span class="Delimiter">(</span>parseFlags <span class="Operator">&lt;$&gt;</span> string <span class="String">&quot;Flags (g,i,m)&quot;</span> <span class="String">&quot;g&quot;</span><span class="Delimiter">))</span>
+<span id="L1" class="LineNr">1 </span><span class="Keyword">newtype</span> <span class="Type">TRegex</span> <span class="Operator">=</span> <span class="Function">TRegex</span><span class="Function"> </span><span class="Type">Regex</span>
+<span id="L2" class="LineNr">2 </span>
+<span id="L3" class="LineNr">3 </span><span class="Keyword">instance</span> <span class="Function">flammableTRegex</span> <span class="Operator">::</span> <span class="Type">Flammable</span> <span class="Type">TRegex</span> <span class="Keyword">where</span>
+<span id="L4" class="LineNr">4 </span>  spark <span class="Operator">=</span> fieldset <span class="String">&quot;Regex&quot;</span> <span class="Operator">$</span> <span class="Function">TRegex</span> <span class="Operator">&lt;$&gt;</span>
+<span id="L5" class="LineNr">5 </span>            <span class="Delimiter">(</span>regex <span class="Operator">&lt;$&gt;</span> string <span class="String">&quot;Pattern&quot;</span> <span class="String">&quot;fo+&quot;</span>
+<span id="L6" class="LineNr">6 </span>                   <span class="Operator">&lt;*&gt;</span> <span class="Delimiter">(</span>parseFlags <span class="Operator">&lt;$&gt;</span> string <span class="String">&quot;Flags (g,i,m)&quot;</span> <span class="String">&quot;g&quot;</span><span class="Delimiter">))</span>
 </pre>
 
-    Then, we can use <code>flareCheck</code> as before:
+    Then, we can use "<code>sparkle</code>" as before:
 <pre>
-<span id="L30" class="LineNr">30 </span>  flareCheck <span class="String">&quot;match&quot;</span> <span class="Operator">$</span> <span class="Operator">\</span><span class="Delimiter">(</span><span class="PreProc">TRegex</span> regex<span class="Delimiter">)</span> string <span class="Operator">-&gt;</span> match regex string
+<span id="L1" class="LineNr">1 </span>sparkle <span class="String">&quot;match&quot;</span> <span class="Operator">$</span> <span class="Operator">\</span><span class="Delimiter">(</span><span class="Function">TRegex</span> regex<span class="Delimiter">)</span> string <span class="Operator">-&gt;</span> match regex string
 </pre>
     to create the following interactive test:
 
     <div id="tests2"></div>
 
-    <h2>FlareCheck test cases</h2>
-    The following interactive tests are tests for FlareCheck itself.
+    <h2>Sparkle test cases</h2>
+    The following widgets are interactive tests for Sparkle itself.
     The first few tests show the identity function <code>id</code>
-    with concrete type annotations, i.e. (<code>id :: Int -&gt; Int</code> etc.).
+    with monomorphized type annotations, for example <code>id <span class="Operator">::</span> <span class="Type">Int</span> <span class="Operator">-&gt;</span> <span class="Type">Int</span></code>.
     Later tests showcase complex output types.
 
     <div id="tests3"></div>
 
-    <h2>Ideas, To do:</h2>
-    <ul>
-      <li>Completely general List / Array inputs would be very nice (this is related to <a href="https://github.com/sharkdp/purescript-flare/issues/2">Flare issue #2</a>)</li>
-      <li>Right now, we can only test pure functions. Can we generalize <code>flareCheck</code> to test effectful computations?</li>
-    </ul>
-
+    </div>
     <script type="text/javascript" src="main.js"></script>
   </body>
 </html>
