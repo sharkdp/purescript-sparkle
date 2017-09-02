@@ -1,11 +1,11 @@
-# FlareCheck
+# Sparkle
 
 A library to create interactive test suites for PureScript functions.
 
-- **[Live demo and tutorial](http://sharkdp.github.io/purescript-flarecheck/)**
-- [Try Flare](http://try.purescript.org/?backend=flare) - Write and compile FlareCheck UIs in your browser
-- [Talk](https://www.youtube.com/watch?v=iTSosG7vUyI) - A talk I gave about Flare and FlareCheck at LambdaConf 2016
-- [Module documentation](http://pursuit.purescript.org/packages/purescript-flarecheck/)
+- **[Live demo and tutorial](http://sharkdp.github.io/purescript-sparkle/)**
+- [Try Flare](http://try.purescript.org/?backend=flare) - Write and compile Sparkle UIs in your browser
+- [Talk](https://www.youtube.com/watch?v=iTSosG7vUyI) - A talk I gave about Flare and Sparkle (called FlareCheck back then) at LambdaConf 2016
+- [Module documentation](http://pursuit.purescript.org/packages/purescript-sparkle/)
 - [Flare: underlying UI library](https://github.com/sharkdp/purescript-flare)
 
 ## Usage
@@ -15,21 +15,21 @@ Suppose you have written a function
 substring :: Int -> Int -> String -> String
 substring start end str = take (end - start) (drop start str)
 ```
-that you want to test. To use FlareCheck, you simply call (the first argument is just a title for the test):
+that you want to test. To use Sparkle, you simply call (the first argument is just a title for the test):
 ``` purs
-flareCheck "substring" substring
+sparkle "substring" substring
 ```
-This automatically creates an interactive testing environment (see [demo page](http://sharkdp.github.io/purescript-flarecheck/) for a working version) like this:
+This automatically creates an interactive testing environment (see [demo page](http://sharkdp.github.io/purescript-sparkle/) for a working version) like this:
 
-[![](http://i.imgur.com/AxnoA5j.png)](http://sharkdp.github.io/purescript-flarecheck/)
+[![](http://i.imgur.com/AxnoA5j.png)](http://sharkdp.github.io/purescript-sparkle/)
 
 Notice how the type information is used to create appropriate input fields for `Int` and `String`. Similarly, calling
 ```purs
-flareCheck "filter even" (filter even)
+sparkle "filter even" (filter even)
 ```
 creates the following interface:
 
-[![](http://i.imgur.com/KDg8KfD.png)](http://sharkdp.github.io/purescript-flarecheck/)
+[![](http://i.imgur.com/KDg8KfD.png)](http://sharkdp.github.io/purescript-sparkle/)
 
 ## Minimal setup
 
@@ -49,9 +49,9 @@ module Test.Main where
 
 import Prelude
 import MyModule
-import Test.FlareCheck
+import Sparkle
 
-main = flareCheck "substring" substring
+main = sparkle "substring" substring
 ```
 - The compiled test module (`test.js`), run:
 ```

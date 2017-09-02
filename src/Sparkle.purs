@@ -1,4 +1,4 @@
-module Test.FlareCheck
+module Sparkle
   ( class Flammable
   , spark
   , class Read
@@ -16,10 +16,10 @@ module Test.FlareCheck
   , interactiveShow
   , interactiveFoldable
   , Renderable(..)
-  , flareDoc'
-  , flareDoc
-  , flareCheck'
-  , flareCheck
+  , sparkleDoc'
+  , sparkleDoc
+  , sparkle'
+  , sparkle
   ) where
 
 import Prelude
@@ -214,11 +214,11 @@ interactiveFoldable = map (SetHTML <<< H.pre <<< markup)
 -- | version of the `String`.
 highlight :: forall e. String -> String -> H.Markup e
 highlight syntaxClass value =
-  H.span ! HA.className ("flarecheck-" <> syntaxClass) $ H.text value
+  H.span ! HA.className ("sparkle-" <> syntaxClass) $ H.text value
 
 -- | Add a tooltip to an element.
 tooltip :: forall e. String -> H.Markup e -> H.Markup e
-tooltip tip = H.span ! HA.className "flarecheck-tooltip" ! HA.title tip
+tooltip tip = H.span ! HA.className "sparkle-tooltip" ! HA.title tip
 
 -- | Extract the constructor name from a string like `Data.Tuple.Tuple`.
 constructor :: forall e. String -> H.Markup e
@@ -300,8 +300,8 @@ instance interactiveChar :: Interactive Char where
 instance interactiveBoolean :: Interactive Boolean where
   interactive = map (SetHTML <<< markup)
     where
-      classN true  = "flarecheck-okay"
-      classN false = "flarecheck-warn"
+      classN true  = "sparkle-okay"
+      classN false = "sparkle-warn"
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
 instance interactiveOrdering :: Interactive Ordering where
@@ -313,14 +313,14 @@ instance genericSpineInteractive :: Interactive GenericSpine where
 instance interactiveMaybe :: Generic a => Interactive (Maybe a) where
   interactive = map (SetHTML <<< markup)
     where
-      classN Nothing  = "flarecheck-warn"
+      classN Nothing  = "sparkle-warn"
       classN _        = ""
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
 instance interactiveEither :: (Generic a, Generic b) => Interactive (Either a b) where
   interactive = map (SetHTML <<< markup)
     where
-      classN (Left _) = "flarecheck-warn"
+      classN (Left _) = "sparkle-warn"
       classN _        = ""
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
@@ -330,7 +330,7 @@ instance interactiveTuple :: (Generic a, Generic b) => Interactive (Tuple a b) w
 instance interactiveArray :: Generic a => Interactive (Array a) where
   interactive = map (SetHTML <<< markup)
     where
-      classN [] = "flarecheck-warn"
+      classN [] = "sparkle-warn"
       classN _  = ""
       markup v = H.pre ! HA.className (classN v) $ prettyPrint v
 
@@ -372,13 +372,13 @@ render output (SetHTML markup) = setHTML output (H.render markup)
 -- | Run an interactive test. The ID specifies the parent element to which
 -- | the test will be appended and the label provides a title for the test.
 -- | The String argument is an optional documentation string.
-flareDoc' :: forall t e. (Interactive t)
+sparkleDoc' :: forall t e. (Interactive t)
             => ElementId
             -> Label
             -> Maybe String
             -> t
             -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
-flareDoc' parentId title doc x = do
+sparkleDoc' parentId title doc x = do
   let flare = interactive (pure x)
   { components, signal } <- setupFlare flare
   let docString = fromMaybe "" doc
@@ -387,25 +387,25 @@ flareDoc' parentId title doc x = do
 
 -- | Run an interactive test. The label provides a title for the test. The
 -- | String argument is an optional documentation string.
-flareDoc :: forall t e. (Interactive t)
-            => Label
-            -> Maybe String
-            -> t
-            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
-flareDoc = flareDoc' "tests"
+sparkleDoc :: forall t e. (Interactive t)
+           => Label
+           -> Maybe String
+           -> t
+           -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
+sparkleDoc = sparkleDoc' "tests"
 
 -- | Run an interactive test. The ID specifies the parent element to which
 -- | the test will be appended and the label provides a title for the test.
-flareCheck' :: forall t e. (Interactive t)
-            => ElementId
-            -> Label
-            -> t
-            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
-flareCheck' id label = flareDoc' id label Nothing
+sparkle' :: forall t e. (Interactive t)
+         => ElementId
+         -> Label
+         -> t
+         -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
+sparkle' id label = sparkleDoc' id label Nothing
 
 -- | Run an interactive test. The label provides a title for the test.
-flareCheck :: forall t e. (Interactive t)
-            => Label
-            -> t
-            -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
-flareCheck = flareCheck' "tests"
+sparkle :: forall t e. (Interactive t)
+        => Label
+        -> t
+        -> Eff (channel :: CHANNEL, dom :: DOM | e) Unit
+sparkle = sparkle' "tests"

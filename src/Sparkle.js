@@ -1,4 +1,3 @@
-// module Test.FlareCheck
 // jshint browser: true
 // jshint node: true
 
@@ -11,7 +10,7 @@ exports.appendTest = function(parentId) {
         return function() {
           var parent = document.getElementById(parentId);
           var fieldset = document.createElement("fieldset");
-          fieldset.className = "flarecheck-test";
+          fieldset.className = "sparkle-test";
           var legend = document.createElement("legend");
           legend.textContent = title;
           fieldset.appendChild(legend);
@@ -27,7 +26,7 @@ exports.appendTest = function(parentId) {
           }
 
           var output = document.createElement("div");
-          output.className = "flarecheck-output";
+          output.className = "sparkle-output";
           fieldset.appendChild(output);
 
           parent.appendChild(fieldset);
@@ -45,7 +44,7 @@ exports.setText = function(output) {
       var pre = output.firstChild;
       if (!pre) {
         pre = document.createElement("pre");
-        pre.className = "flarecheck-output-settext";
+        pre.className = "sparkle-output-settext";
         output.appendChild(pre);
       }
       pre.textContent = str;

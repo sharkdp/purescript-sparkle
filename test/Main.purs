@@ -15,9 +15,9 @@ import Data.Tuple (Tuple(..))
 import Partial.Unsafe (unsafePartial)
 
 import Flare (fieldset, string)
-import Test.FlareCheck (class Flammable, class Interactive, flareCheck',
-                       interactiveGeneric, NonNegativeInt(..), SmallInt(..),
-                       SmallNumber(..), Multiline(..), WrapEnum)
+import Sparkle (class Flammable, class Interactive, sparkle',
+                interactiveGeneric, NonNegativeInt(..), SmallInt(..),
+                SmallNumber(..), Multiline(..), WrapEnum)
 
 newtype TRegex = TRegex Regex
 
@@ -75,16 +75,16 @@ instance boundedEnumTestEnum :: BoundedEnum TestEnum where
   toEnum = testToEnum
 
 main = do
-  flareCheck' "tests1" "length"      length
-  flareCheck' "tests1" "charCodeAt"  charCodeAt
-  flareCheck' "tests1" "joinWith"    joinWith
-  flareCheck' "tests1" "filter even" (filter even)
-  flareCheck' "tests1" "fromMaybe"   (fromMaybe :: Number -> _)
+  sparkle' "tests1" "length"      length
+  sparkle' "tests1" "charCodeAt"  charCodeAt
+  sparkle' "tests1" "joinWith"    joinWith
+  sparkle' "tests1" "filter even" (filter even)
+  sparkle' "tests1" "fromMaybe"   (fromMaybe :: Number -> _)
 
-  flareCheck' "tests2" "match" $ \(TRegex regex) string -> match regex string
+  sparkle' "tests2" "match" $ \(TRegex regex) string -> match regex string
 
   let fc :: forall a. Interactive a => String -> a -> _
-      fc = flareCheck' "tests3"
+      fc = sparkle' "tests3"
 
   fc "Int" (id :: Int -> _)
   fc "Number" (id :: Number -> _)

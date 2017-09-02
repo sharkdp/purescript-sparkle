@@ -1,11 +1,11 @@
 {
-  "name": "purescript-flarecheck",
+  "name": "purescript-sparkle",
   "authors": [
     "David Peter <mail@david-peter.de>"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/sharkdp/purescript-flarecheck.git"
+    "url": "git://github.com/sharkdp/purescript-sparkle.git"
   },
   "license": "MIT",
   "ignore": [
