@@ -46,35 +46,51 @@ creates the following interface:
 
 [![](http://i.imgur.com/KDg8KfD.png)](http://sharkdp.github.io/purescript-sparkle/)
 
-## Minimal setup
+## Quick start
 
-- The module that you want to test (`src/MyModule.purs`):
-``` purs
-module MyModule (substring) where
+- Start a PureScript project in a new folder:
+  ```
+  pulp init
+  ```
 
-import Prelude
-import Data.String
+- Install *Sparkle*:
+  ```
+  bower install --save purescript-sparkle
+  ```
 
-substring :: Int -> Int -> String -> String
-substring start end str = take (end - start) (drop start str)
-```
-- A module which runs the tests (`test/Main.purs`):
-``` purs
-module Test.Main where
+- Write your own code (`src/MyModule.purs`), for example:
 
-import Prelude
-import MyModule
-import Sparkle
+  ``` purs
+  module MyModule (substring) where
 
-main = sparkle "substring" substring
-```
-- The compiled test module (`test.js`), run:
-```
-pulp build -O -I test -m Test.Main -t test.js
-```
-- An accompanying HTML file which includes an empty element with ID `tests` that runs the script:
-``` HTML
-<div id="tests"></div>
-<script src="test.js"></script>
-```
-See the [assets](assets) folder for full HTML and CSS templates.
+  import Prelude
+  import Data.String
+
+  substring :: Int -> Int -> String -> String
+  substring start end str = take (end - start) (drop start str)
+  ```
+
+- Write the module that creates the interactive Sparkle tests (`test/Main.purs`):
+
+  ``` purs
+  module Test.Main where
+
+  import Prelude
+  import MyModule
+  import Sparkle
+
+  main = sparkle "substring" substring
+  ```
+
+- Compile and bundle:
+  ```
+  pulp build -O -I test -m Test.Main -t test.js
+  ```
+
+- Copy the `index.html` and `sparkle.css` file from the `assets` folder:
+
+  ``` bash
+  cp bower_components/purescript-sparkle/assets/* .
+  ```
+
+- Open `index.html` in the browser.
