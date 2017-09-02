@@ -23,28 +23,22 @@ Sparkle is a library that leverages the power of [PureScripts](http://purescript
 
 The internal mechanism of this library is similar to [QuickCheck](https://github.com/purescript/purescript-quickcheck). However, instead of using randomly generated input data, Sparkle creates reactive web interfaces for "interactive testing". It uses the [Flare library](https://github.com/sharkdp/purescript-flare) to create those widgets.
 
-## Examples
+## Example
 
-Suppose you have a function
+Consider the following (hypothetic) function:
 ``` purs
-substring :: Int -> Int -> String -> String
-substring start end str = take (end - start) (drop start str)
+formatNumber :: Number -> Int -> Char -> Boolean -> String
+formatNumber value precision decimalMark isSigned = ...
 ```
-that takes two integers and a string. Sparkle can automatically create a user interface for these inputs by calling:
+Sparkle can automatically create a user interface for these inputs by calling:
 ``` purs
-sparkle "substring" substring
+sparkle "formatNumber" formatNumber
 ```
 The result looks like this:
 
-[![](http://i.imgur.com/AxnoA5j.png)](http://sharkdp.github.io/purescript-sparkle/)
+![Sparkle widget](https://i.imgur.com/xB13OGZ.png)
 
-Similarly, calling
-```purs
-sparkle "filter even" (filter even)
-```
-creates the following interface:
-
-[![](http://i.imgur.com/KDg8KfD.png)](http://sharkdp.github.io/purescript-sparkle/)
+Notice how each input type (`Number`, `Int`, `Char`, `Boolean`) is represented by an appropriate input field.
 
 ## Quick start
 
