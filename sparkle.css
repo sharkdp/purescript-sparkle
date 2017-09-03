@@ -3,7 +3,8 @@
 .sparkle-test input,
 .sparkle-test label,
 .sparkle-test legend,
-.sparkle-test select {
+.sparkle-test select,
+.sparkle-test textarea {
     font-family: 'Source Code Pro', monospace;
 }
 

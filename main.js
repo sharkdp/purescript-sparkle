@@ -5250,7 +5250,7 @@ var PS = {};
           if (v instanceof SetHTML) {
               return $foreign.setHTML(output)(Text_Smolder_Renderer_String.render(v.value0));
           };
-          throw new Error("Failed pattern match at Sparkle line 462, column 1 - line 464, column 34: " + [ output.constructor.name, v.constructor.name ]);
+          throw new Error("Failed pattern match at Sparkle line 479, column 1 - line 481, column 34: " + [ output.constructor.name, v.constructor.name ]);
       };
   };
   var prettyPrintRowListNil = new PrettyPrintRowList(function (v) {
@@ -5271,8 +5271,8 @@ var PS = {};
               return Text_Smolder_Markup.text("(Color.hsl " + (showN(col.h) + (" " + (showN(col.s) + (" " + (showN(col.l) + ")"))))));
           }));
       };
-      return Data_Functor.map(Flare.functorUI)(function ($171) {
-          return SetHTML.create(markup($171));
+      return Data_Functor.map(Flare.functorUI)(function ($204) {
+          return SetHTML.create(markup($204));
       });
   })());
   var interactive = function (dict) {
@@ -5325,8 +5325,8 @@ var PS = {};
                       });
                   }));
               };
-              return Data_Functor.map(Flare.functorUI)(function ($172) {
-                  return SetHTML.create(prettyPrintRecord($172));
+              return Data_Functor.map(Flare.functorUI)(function ($205) {
+                  return SetHTML.create(prettyPrintRecord($205));
               });
           })());
       };
@@ -5406,18 +5406,50 @@ var PS = {};
   };
   var flammableEither = function (dictFlammable) {
       return function (dictFlammable1) {
-          return new Flammable(new Data_NonEmpty.NonEmpty(new Data_Either.Left(head(examples(dictFlammable))), new Data_List_Types.Cons(new Data_Either.Right(head(examples(dictFlammable1))), Data_List_Types.Nil.value)), function (v) {
-              var toEither = function (v1) {
-                  return function (v2) {
-                      return function (v3) {
-                          if (v1 === "Left") {
-                              return new Data_Either.Left(v2);
+          return new Flammable((function () {
+              var v = examples(dictFlammable);
+              if (v.value1 instanceof Data_List_Types.Cons) {
+                  var v1 = examples(dictFlammable1);
+                  if (v1.value1 instanceof Data_List_Types.Cons) {
+                      return new Data_NonEmpty.NonEmpty(new Data_Either.Right(v1.value0), new Data_List_Types.Cons(new Data_Either.Left(v.value0), new Data_List_Types.Cons(new Data_Either.Right(v1.value1.value0), new Data_List_Types.Cons(new Data_Either.Left(v.value1.value0), Data_List_Types.Nil.value))));
+                  };
+                  return new Data_NonEmpty.NonEmpty(new Data_Either.Left(v.value0), new Data_List_Types.Cons(new Data_Either.Right(v1.value0), new Data_List_Types.Cons(new Data_Either.Left(v.value1.value0), Data_List_Types.Nil.value)));
+              };
+              var v1 = examples(dictFlammable1);
+              if (v1.value1 instanceof Data_List_Types.Cons) {
+                  return new Data_NonEmpty.NonEmpty(new Data_Either.Right(v1.value0), new Data_List_Types.Cons(new Data_Either.Left(v.value0), new Data_List_Types.Cons(new Data_Either.Right(v1.value1.value0), Data_List_Types.Nil.value)));
+              };
+              return new Data_NonEmpty.NonEmpty(new Data_Either.Right(v1.value0), new Data_List_Types.Cons(new Data_Either.Left(v.value0), Data_List_Types.Nil.value));
+          })(), function ($$default) {
+              var toEither = function (v) {
+                  return function (v1) {
+                      return function (v2) {
+                          if (v === "Left") {
+                              return new Data_Either.Left(v1);
                           };
-                          return new Data_Either.Right(v3);
+                          return new Data_Either.Right(v2);
                       };
                   };
               };
-              return Flare.fieldset("Either")(Control_Apply.apply(Flare.applyUI)(Control_Apply.apply(Flare.applyUI)(Data_Functor.map(Flare.functorUI)(toEither)(Flare.radioGroup(Data_Foldable.foldableArray)("Select:")(new Data_NonEmpty.NonEmpty("Left", [ "Right" ]))(Control_Category.id(Control_Category.categoryFn))))(spark(dictFlammable)(head(examples(dictFlammable)))))(spark(dictFlammable1)(head(examples(dictFlammable1)))));
+              var exr = (function () {
+                  if ($$default instanceof Data_Either.Right) {
+                      return $$default.value0;
+                  };
+                  if ($$default instanceof Data_Either.Left) {
+                      return head(examples(dictFlammable1));
+                  };
+                  throw new Error("Failed pattern match at Sparkle line 138, column 17 - line 140, column 41: " + [ $$default.constructor.name ]);
+              })();
+              var exl = (function () {
+                  if ($$default instanceof Data_Either.Left) {
+                      return $$default.value0;
+                  };
+                  if ($$default instanceof Data_Either.Right) {
+                      return head(examples(dictFlammable));
+                  };
+                  throw new Error("Failed pattern match at Sparkle line 135, column 17 - line 137, column 42: " + [ $$default.constructor.name ]);
+              })();
+              return Flare.fieldset("Either")(Control_Apply.apply(Flare.applyUI)(Control_Apply.apply(Flare.applyUI)(Data_Functor.map(Flare.functorUI)(toEither)(Flare.radioGroup(Data_Foldable.foldableArray)("Select:")(new Data_NonEmpty.NonEmpty("Left", [ "Right" ]))(Control_Category.id(Control_Category.categoryFn))))(spark(dictFlammable)(exl)))(spark(dictFlammable1)(exr)));
           });
       };
   };
@@ -5444,7 +5476,10 @@ var PS = {};
       };
   };
   var flammableMaybe = function (dictFlammable) {
-      return new Flammable(new Data_NonEmpty.NonEmpty(new Data_Maybe.Just(head(examples(dictFlammable))), new Data_List_Types.Cons(Data_Maybe.Nothing.value, Data_List_Types.Nil.value)), function (init) {
+      return new Flammable((function () {
+          var v = examples(dictFlammable);
+          return new Data_NonEmpty.NonEmpty(new Data_Maybe.Just(v.value0), new Data_List_Types.Cons(Data_Maybe.Nothing.value, Data_Functor.map(Data_List_Types.functorList)(Data_Maybe.Just.create)(v.value1)));
+      })(), function (init) {
           var toMaybe = function (v) {
               return function (v1) {
                   if (v) {
@@ -5453,7 +5488,7 @@ var PS = {};
                   if (!v) {
                       return Data_Maybe.Nothing.value;
                   };
-                  throw new Error("Failed pattern match at Sparkle line 109, column 11 - line 109, column 35: " + [ v.constructor.name, v1.constructor.name ]);
+                  throw new Error("Failed pattern match at Sparkle line 110, column 11 - line 110, column 35: " + [ v.constructor.name, v1.constructor.name ]);
               };
           };
           var isJust = function (v) {
@@ -5463,7 +5498,7 @@ var PS = {};
               if (v instanceof Data_Maybe.Nothing) {
                   return false;
               };
-              throw new Error("Failed pattern match at Sparkle line 111, column 11 - line 111, column 33: " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Sparkle line 112, column 11 - line 112, column 33: " + [ v.constructor.name ]);
           };
           var $$default = function (v) {
               if (v instanceof Data_Maybe.Just) {
@@ -5472,7 +5507,7 @@ var PS = {};
               if (v instanceof Data_Maybe.Nothing) {
                   return head(examples(dictFlammable));
               };
-              throw new Error("Failed pattern match at Sparkle line 113, column 11 - line 113, column 31: " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Sparkle line 114, column 11 - line 114, column 31: " + [ v.constructor.name ]);
           };
           return Flare.fieldset("Maybe")(Control_Apply.apply(Flare.applyUI)(Data_Functor.map(Flare.functorUI)(toMaybe)(Flare["boolean"]("Just")(isJust(init))))(spark(dictFlammable)($$default(init))));
       });
@@ -5495,8 +5530,8 @@ var PS = {};
       var parts = Data_String.split(".")($$long);
       var name = Data_Array_Partial.last()(parts);
       var modString = (function () {
-          var $149 = Data_Array.length(parts) === 1;
-          if ($149) {
+          var $182 = Data_Array.length(parts) === 1;
+          if ($182) {
               return "Data constructor form unknown module";
           };
           return $$long;
@@ -5518,11 +5553,11 @@ var PS = {};
                               });
                           });
                       };
-                      throw new Error("Failed pattern match at Sparkle line 281, column 9 - line 281, column 30: " + [ v1.constructor.name, x.constructor.name ]);
+                      throw new Error("Failed pattern match at Sparkle line 298, column 9 - line 298, column 30: " + [ v1.constructor.name, x.constructor.name ]);
                   };
               };
-              var $154 = Data_Array["null"](v.value1);
-              if ($154) {
+              var $187 = Data_Array["null"](v.value1);
+              if ($187) {
                   return constructor(v.value0);
               };
               return showParen(d > 10)(Control_Bind.discard(Control_Bind.discardUnit)(Text_Smolder_Markup.bindMarkupM)(constructor(v.value0))(function () {
@@ -5577,13 +5612,13 @@ var PS = {};
                   });
               }));
           };
-          throw new Error("Failed pattern match at Sparkle line 271, column 1 - line 271, column 50: " + [ d.constructor.name, v.constructor.name ]);
+          throw new Error("Failed pattern match at Sparkle line 288, column 1 - line 288, column 50: " + [ d.constructor.name, v.constructor.name ]);
       };
   };
   var pretty = prettyPrec(0);
   var prettyPrint = function (dictGeneric) {
-      return function ($174) {
-          return pretty(Data_Generic.toSpine(dictGeneric)($174));
+      return function ($207) {
+          return pretty(Data_Generic.toSpine(dictGeneric)($207));
       };
   };
   var interactiveArray = function (dictGeneric) {
@@ -5597,8 +5632,8 @@ var PS = {};
           var markup = function (v) {
               return Text_Smolder_Markup["with"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericArray(dictGeneric))(v));
           };
-          return Data_Functor.map(Flare.functorUI)(function ($175) {
-              return SetHTML.create(markup($175));
+          return Data_Functor.map(Flare.functorUI)(function ($208) {
+              return SetHTML.create(markup($208));
           });
       })());
   };
@@ -5610,13 +5645,13 @@ var PS = {};
           if (!v) {
               return "sparkle-warn";
           };
-          throw new Error("Failed pattern match at Sparkle line 338, column 7 - line 339, column 7: " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at Sparkle line 355, column 7 - line 356, column 7: " + [ v.constructor.name ]);
       };
       var markup = function (v) {
           return Text_Smolder_Markup["with"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericBool)(v));
       };
-      return Data_Functor.map(Flare.functorUI)(function ($176) {
-          return SetHTML.create(markup($176));
+      return Data_Functor.map(Flare.functorUI)(function ($209) {
+          return SetHTML.create(markup($209));
       });
   })());
   var interactiveEither = function (dictGeneric) {
@@ -5631,8 +5666,8 @@ var PS = {};
               var markup = function (v) {
                   return Text_Smolder_Markup["with"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericEither(dictGeneric)(dictGeneric1))(v));
               };
-              return Data_Functor.map(Flare.functorUI)(function ($177) {
-                  return SetHTML.create(markup($177));
+              return Data_Functor.map(Flare.functorUI)(function ($210) {
+                  return SetHTML.create(markup($210));
               });
           })());
       };
@@ -5644,8 +5679,8 @@ var PS = {};
                   return prettyPrint(Data_Generic.genericArray(dictGeneric))(Data_Array.fromFoldable(dictFoldable)(val));
               });
           };
-          return Data_Functor.map(Flare.functorUI)(function ($178) {
-              return SetHTML.create(Text_Smolder_HTML.pre(markup($178)));
+          return Data_Functor.map(Flare.functorUI)(function ($211) {
+              return SetHTML.create(Text_Smolder_HTML.pre(markup($211)));
           });
       };
   };
@@ -5654,8 +5689,8 @@ var PS = {};
   };
   var interactiveGeneric = function (dictGeneric) {
       return function (ui) {
-          return Data_Functor.map(Flare.functorUI)(function ($179) {
-              return SetHTML.create(Text_Smolder_HTML.pre(prettyPrint(dictGeneric)($179)));
+          return Data_Functor.map(Flare.functorUI)(function ($212) {
+              return SetHTML.create(Text_Smolder_HTML.pre(prettyPrint(dictGeneric)($212)));
           })(ui);
       };
   };
@@ -5673,8 +5708,8 @@ var PS = {};
           var unwrap = function (v) {
               return v;
           };
-          return function ($180) {
-              return interactiveGeneric(dictGeneric)(Data_Functor.map(Flare.functorUI)(unwrap)($180));
+          return function ($213) {
+              return interactiveGeneric(dictGeneric)(Data_Functor.map(Flare.functorUI)(unwrap)($213));
           };
       })());
   };
@@ -5689,8 +5724,8 @@ var PS = {};
           var markup = function (v) {
               return Text_Smolder_Markup["with"](Text_Smolder_Markup.attributableMarkupMF)(Text_Smolder_HTML.pre)(Text_Smolder_HTML_Attributes.className(classN(v)))(prettyPrint(Data_Generic.genericMaybe(dictGeneric))(v));
           };
-          return Data_Functor.map(Flare.functorUI)(function ($181) {
-              return SetHTML.create(markup($181));
+          return Data_Functor.map(Flare.functorUI)(function ($214) {
+              return SetHTML.create(markup($214));
           });
       })());
   };
@@ -5999,6 +6034,7 @@ var PS = {};
       fc(Sparkle.interactiveFunction(Sparkle.flammableTuple(Sparkle.flammableInt)(Sparkle.flammableString))(Sparkle.interactiveTuple(Data_Generic.genericInt)(Data_Generic.genericString)))("Tuple Int String")(Control_Category.id(Control_Category.categoryFn))();
       fc(Sparkle.interactiveFunction(Sparkle.flammableArray(Sparkle.flammableInt))(Sparkle.interactiveArray(Data_Generic.genericInt)))("Array Int")(Control_Category.id(Control_Category.categoryFn))();
       fc(Sparkle.interactiveFunction(Sparkle.flammableArray(Sparkle.flammableString))(Sparkle.interactiveArray(Data_Generic.genericString)))("Array String")(Control_Category.id(Control_Category.categoryFn))();
+      fc(Sparkle.interactiveFunction(Sparkle.flammableArray(Sparkle.flammableEither(Sparkle.flammableString)(Sparkle.flammableNumber)))(Sparkle.interactiveArray(Data_Generic.genericEither(Data_Generic.genericString)(Data_Generic.genericNumber))))("Array (Either String Boolean)")(Control_Category.id(Control_Category.categoryFn))();
       fc(Sparkle.interactiveFunction(Sparkle.flammableList(Sparkle.flammableSmallNumber))(Sparkle.interactiveList(Sparkle.genericSmallNumber)))("List SmallNumber")(Control_Category.id(Control_Category.categoryFn))();
       fc(Sparkle.interactiveFunction(Sparkle.flammableList(Sparkle.flammableString))(Sparkle.interactiveList(Data_Generic.genericString)))("List String")(Control_Category.id(Control_Category.categoryFn))();
       fc(Sparkle.interactiveFunction(Sparkle.flammableColor)(Sparkle.interactiveColor))("Color")(Control_Category.id(Control_Category.categoryFn))();
