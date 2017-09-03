@@ -99,6 +99,7 @@ main = do
   fc "Tuple Int String" (id ∷ Tuple Int String → _)
   fc "Array Int" (id ∷ Array Int → _)
   fc "Array String" (id ∷ Array String → _)
+  fc "Array (Either String Boolean)" (id ∷ Array (Either String Number) → _)
   fc "List SmallNumber" (id ∷ List SmallNumber → _)
   fc "List String" (id ∷ List String → _)
   fc "Color" (id ∷ Color → _)

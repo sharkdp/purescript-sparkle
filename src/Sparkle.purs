@@ -100,12 +100,24 @@ head ∷ ∀ a. NonEmpty List a → a
 head (x :| _) = x
 
 instance flammableTuple ∷ (Flammable a, Flammable b) ⇒ Flammable (Tuple a b) where
-  examples = Tuple (head examples) (head examples) :| Nil
+  examples =
+    case examples of
+      l1 :| l2 : _ →
+        case examples of
+          r1 :| r2 : _ → Tuple l1 r1 :| Tuple l1 r2 : Tuple l2 r1 : Tuple l2 r2 : Nil
+          r1 :| _      → Tuple l1 r1 :| Tuple l2 r1 : Nil
+      l1 :| _ →
+        case examples of
+          r1 :| r2 : _ → Tuple l1 r1 :| Tuple l1 r2 : Nil
+          r1 :| _      → Tuple l1 r1 :| Nil
+
   spark (Tuple a b) = fieldset "Tuple" $ Tuple <$> spark a <*> spark b
 
 instance flammableMaybe ∷ (Flammable a) ⇒ Flammable (Maybe a) where
-  examples = Just (head examples) :| Nothing : Nil
-  spark init = fieldset "Maybe" $ toMaybe <$> boolean "Just" (isJust init) <*> spark (default init)
+  examples = case examples of
+               x :| xs → Just x :| Nothing : (Just <$> xs)
+
+  spark init = fieldset "Maybe" $ toMaybe <$> boolean "Just/Nothing" (isJust init) <*> spark (default init)
     where toMaybe true x  = Just x
           toMaybe false _ = Nothing
           isJust (Just _) = true
@@ -114,13 +126,29 @@ instance flammableMaybe ∷ (Flammable a) ⇒ Flammable (Maybe a) where
           default Nothing = head examples
 
 instance flammableEither ∷ (Flammable a, Flammable b) ⇒ Flammable (Either a b) where
-  examples = Left (head examples) :| Right (head examples) : Nil
-  spark _ = fieldset "Either" $
-              toEither <$> radioGroup "Select:" ("Left" :| ["Right"]) id
-                       <*> spark (head examples)
-                       <*> spark (head examples)
+  examples =
+    case examples of
+      l1 :| l2 : _ →
+        case examples of
+          r1 :| r2 : _ → Right r1 :| Left l1 : Right r2 : Left l2 : Nil
+          r1 :| _      → Left l1 :| Right r1 : Left l2 : Nil
+      l1 :| _ →
+        case examples of
+          r1 :| r2 : _ → Right r1 :| Left l1 : Right r2 : Nil
+          r1 :| _      → Right r1 :| Left l1 : Nil
+
+  spark default = fieldset "Either" $
+                    toEither <$> radioGroup "Select:" ("Left" :| ["Right"]) id
+                             <*> spark exl
+                             <*> spark exr
     where toEither "Left" x _ = Left x
           toEither _      _ y = Right y
+          exl = case default of
+                  Left l → l
+                  Right _ → head examples
+          exr = case default of
+                  Right r → r
+                  Left _ → head examples
 
 instance flammableColor ∷ Flammable Color where
   examples = hsl 216.0 1.0 0.42 :| hsl 120.0 0.7 0.8 : black : Nil
