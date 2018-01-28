@@ -28,16 +28,18 @@ module Sparkle
 
 import Prelude
 
+import Color (Color, hsl, cssStringHSLA, toHSLA, black)
 import Control.Monad.Eff (Eff)
-
+import DOM (DOM)
+import DOM.Node.Types (Element)
 import Data.Array as A
 import Data.Array.Partial as AP
 import Data.Char (toCharCode)
 import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, succ, enumFromTo)
-import Data.Foldable (class Foldable, for_, intercalate)
+import Data.Foldable (class Foldable, for_)
 import Data.Generic (class Generic, GenericSpine(..), toSpine)
-import Data.List (List(..), (:), singleton)
+import Data.List (List(..), fromFoldable, singleton, (:))
 import Data.List.NonEmpty (NonEmptyList(..), toList)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.NonEmpty (NonEmpty, (:|))
@@ -47,28 +49,17 @@ import Data.String (Pattern(..), split, length, charAt)
 import Data.String as S
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Data.Tuple (Tuple(..))
-import Color (Color, hsl, cssStringHSLA, toHSLA, black)
-
+import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup, boolean, stringPattern, int, intRange, intSlider, number, numberSlider, select, color, resizableList_, textarea)
 import Partial.Unsafe (unsafePartial)
-
-import Type.Prelude (class RowToList)
-import Type.Row (kind RowList, class RowLacks, Nil, Cons, RLProxy(..))
-
-import Signal.Channel (CHANNEL())
-
-import DOM (DOM())
-import DOM.Node.Types (Element())
-
-import Text.Smolder.Markup (Markup, text) as H
-import Text.Smolder.Markup ((!))
+import Signal (runSignal)
+import Signal.Channel (CHANNEL)
 import Text.Smolder.HTML (pre, span, div) as H
 import Text.Smolder.HTML.Attributes as HA
+import Text.Smolder.Markup (Markup, text) as H
+import Text.Smolder.Markup ((!))
 import Text.Smolder.Renderer.String (render) as H
-
-import Signal (runSignal)
-import Flare (Label, ElementId, UI, setupFlare, fieldset, string, radioGroup, boolean,
-              stringPattern, int, intRange, intSlider, number, numberSlider, select, color,
-              resizableList_, textarea)
+import Type.Prelude (class RowToList)
+import Type.Row (kind RowList, class RowLacks, Nil, Cons, RLProxy(..))
 
 -- | A type class for data types that can be used for interactive Sparkle UIs. Instances for type
 -- | `a` must provide a way to create a Flare UI which holds a value of type `a`.
@@ -98,6 +89,10 @@ instance flammableBoolean ∷ Flammable Boolean where
 
 head ∷ ∀ a. NonEmpty List a → a
 head (x :| _) = x
+
+intercalate_ :: forall m a b. Apply m => Applicative m => m b -> List (m a) -> m Unit
+intercalate_ sep (x : xs) = x *> for_ xs ((*>) sep)
+intercalate_ sep Nil = pure unit
 
 instance flammableTuple ∷ (Flammable a, Flammable b) ⇒ Flammable (Tuple a b) where
   examples =
@@ -314,7 +309,7 @@ prettyPrec d (SProd s arr) = do
 
 prettyPrec d (SRecord arr) = do
   H.text "{\n  "
-  intercalate (H.text ",\n  ") (map recEntry arr)
+  intercalate_ (H.text ",\n  ") (fromFoldable $ map recEntry arr)
   H.text "\n}"
     where
       recEntry x = do
@@ -332,7 +327,7 @@ prettyPrec d (SChar x)     = tooltip tip       $ highlight "string" (show x)
   where tip = "Char (with char code " <> show (toCharCode x) <> ")"
 prettyPrec d (SArray arr)  = tooltip tip $ do
   H.text "["
-  intercalate (H.text ", ") (map (\x → prettyPrec 0 (x unit)) arr)
+  intercalate_ (H.text ", ") (fromFoldable $ map (\x → prettyPrec 0 (x unit)) arr)
   H.text "]"
     where tip = "Array of length " <> show (A.length arr)
 
@@ -447,7 +442,7 @@ instance interactiveRecordInstance ∷
       prettyPrintRecord ∷ Record row → H.Markup Unit
       prettyPrintRecord record = H.pre do
         H.text "{\n  "
-        intercalate (H.text ",\n  ") (map recEntry entries)
+        intercalate_ (H.text ",\n  ") (map recEntry entries)
         H.text "\n}"
 
         where
